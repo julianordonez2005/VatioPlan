@@ -1,0 +1,783 @@
+{
+ "fuente": "REAL",
+ "ultimo_dato": "2026-11-03 23:00",
+ "horas_totales": 33672,
+ "desde": "2023-01-01",
+ "calidad": {
+  "tabla": [
+   {
+    "index": 0,
+    "Variable": "Precio de bolsa nacional (COP/kWh)",
+    "Fuente": "SIMEM EC6945 · horario",
+    "Desde": "2023-01-01",
+    "Hasta": "2026-11-03 23:00",
+    "Faltantes (%)": 0.0,
+    "Mín": 95.9,
+    "Mediana": 409.8,
+    "Máx": 2675.6,
+    "Atípicos (3×IQR)": 199,
+    "Ceros o negativos": 0,
+    "Estado": "OK"
+   },
+   {
+    "index": 1,
+    "Variable": "Volumen útil de embalses (%)",
+    "Fuente": "API XM PorcVoluUtilDiar · diario",
+    "Desde": "2023-01-01",
+    "Hasta": "2026-11-03 23:00",
+    "Faltantes (%)": 0.0,
+    "Mín": 28.6,
+    "Mediana": 69.1,
+    "Máx": 86.0,
+    "Atípicos (3×IQR)": 0,
+    "Ceros o negativos": 0,
+    "Estado": "OK"
+   },
+   {
+    "index": 2,
+    "Variable": "Aportes hídricos (GWh/día)",
+    "Fuente": "API XM AporEner · diario",
+    "Desde": "2023-01-01",
+    "Hasta": "2026-11-03 23:00",
+    "Faltantes (%)": 0.0,
+    "Mín": 55.8,
+    "Mediana": 184.5,
+    "Máx": 643.1,
+    "Atípicos (3×IQR)": 144,
+    "Ceros o negativos": 0,
+    "Estado": "OK"
+   },
+   {
+    "index": 3,
+    "Variable": "Índice ONI (El Niño/La Niña)",
+    "Fuente": "NOAA CPC · mensual",
+    "Desde": "2023-01-01",
+    "Hasta": "2026-11-03 23:00",
+    "Faltantes (%)": 0.0,
+    "Mín": -0.6,
+    "Mediana": 0.1,
+    "Máx": 2.5,
+    "Atípicos (3×IQR)": 0,
+    "Ceros o negativos": 15288,
+    "Estado": "OK"
+   }
+  ],
+  "duplicados": 0,
+  "horas_faltantes_indice": 0,
+  "faltantes_precio_pct": 0.0
+ },
+ "hallazgos_eda": [
+  {
+   "Hallazgo": "El dato más reciente es del 03-Nov-2026 23:00: el precio llega con días de retraso.",
+   "Decisión": "Todas las variables usan información de hace 7 días o más (sin fuga de datos)."
+  },
+  {
+   "Hallazgo": "En el último año, la hora más cara del día cuesta 1.9 veces la más barata (mediana).",
+   "Decisión": "Mover consumo de hora tiene valor económico: es el problema que resuelve VatioPlan."
+  },
+  {
+   "Hallazgo": "Autocorrelación del precio: 0.91 a 24 h y 0.77 a 168 h (misma hora, semana antes).",
+   "Decisión": "El ancla del modelo es el promedio de la misma hora en las últimas semanas."
+  },
+  {
+   "Hallazgo": "El promedio mensual va de 113 a 1,529 COP/kWh (13.6×): el nivel cambia por régimen.",
+   "Decisión": "No se pronostica el precio absoluto; el GB corrige un ancla reciente que trae el régimen."
+  },
+  {
+   "Hallazgo": "Asimetría de 1.7: picos ocasionales muy altos.",
+   "Decisión": "Pérdida absolute_error (MAE) y métricas robustas; se reporta también el acierto de horas baratas."
+  },
+  {
+   "Hallazgo": "Correlación precio diario vs. embalses: -0.16.",
+   "Decisión": "La hidrología explica el nivel (régimen), no la forma horaria; se deja como contexto y en el candidato con todas las variables."
+  }
+ ],
+ "eda": {
+  "ultimo": "2026-11-03 23:00",
+  "ratio_pico_valle": 1.8692374538263947,
+  "acf24": 0.9121796208547178,
+  "acf168": 0.7728365374175139,
+  "mensual_min": 112.50890583333332,
+  "mensual_max": 1529.1356704301077,
+  "mes_min": "2025-06",
+  "mes_max": "2024-10",
+  "asimetria": 1.732182946435251,
+  "hora_mas_cara": 19,
+  "hora_mas_barata": 9,
+  "corr_embalses": -0.15874395945719527
+ },
+ "modelo_test": {
+  "periodo_prueba": "2026-08-06 a 2026-11-03",
+  "horas_entrenamiento": 31344,
+  "horas_prueba": 2160,
+  "mae_modelo": 159.25327495015114,
+  "mae_base": 142.38815009259258,
+  "mape_modelo": 27.190240550438965,
+  "mape_base": 22.468405654426814,
+  "acierto_horas_baratas_modelo": 0.7347222222222223,
+  "acierto_horas_baratas_base": 0.7291666666666666,
+  "mejora_mae_pct": -11.84447220263165
+ },
+ "particion": {
+  "entrenamiento": "2023-01-08 a 2026-05-07",
+  "validacion": "2026-05-08 a 2026-08-05",
+  "prueba": "2026-08-06 a 2026-11-03"
+ },
+ "hiperparametros": {
+  "elegidos_validacion": {
+   "learning_rate": 0.05,
+   "max_iter": 400,
+   "min_samples_leaf": 100,
+   "max_leaf_nodes": 31
+  },
+  "en_uso": {
+   "learning_rate": 0.05,
+   "max_iter": 400,
+   "min_samples_leaf": 100,
+   "max_leaf_nodes": 31
+  },
+  "top5": [
+   {
+    "index": 0,
+    "learning_rate": 0.05,
+    "max_iter": 400,
+    "min_samples_leaf": 100,
+    "max_leaf_nodes": 31,
+    "MAE validación": 200.45,
+    "Horas baratas validación (%)": 72.36
+   },
+   {
+    "index": 1,
+    "learning_rate": 0.05,
+    "max_iter": 100,
+    "min_samples_leaf": 100,
+    "max_leaf_nodes": 31,
+    "MAE validación": 200.45,
+    "Horas baratas validación (%)": 72.36
+   },
+   {
+    "index": 2,
+    "learning_rate": 0.03,
+    "max_iter": 100,
+    "min_samples_leaf": 100,
+    "max_leaf_nodes": 31,
+    "MAE validación": 200.48,
+    "Horas baratas validación (%)": 72.5
+   },
+   {
+    "index": 3,
+    "learning_rate": 0.03,
+    "max_iter": 400,
+    "min_samples_leaf": 100,
+    "max_leaf_nodes": 31,
+    "MAE validación": 200.48,
+    "Horas baratas validación (%)": 72.5
+   },
+   {
+    "index": 4,
+    "learning_rate": 0.1,
+    "max_iter": 100,
+    "min_samples_leaf": 100,
+    "max_leaf_nodes": 31,
+    "MAE validación": 200.52,
+    "Horas baratas validación (%)": 72.36
+   }
+  ],
+  "combinaciones": 36
+ },
+ "sobreajuste": [
+  {
+   "index": 0,
+   "Conjunto": "Entrenamiento",
+   "Periodo": "2023-01-08 a 2026-05-07",
+   "Horas": 29184,
+   "MAE": 176.15,
+   "MAPE (%)": 52.19,
+   "Sesgo (COP/kWh)": 2.44,
+   "Horas baratas (%)": 81.41
+  },
+  {
+   "index": 1,
+   "Conjunto": "Validación",
+   "Periodo": "2026-05-08 a 2026-08-05",
+   "Horas": 2160,
+   "MAE": 200.45,
+   "MAPE (%)": 35.07,
+   "Sesgo (COP/kWh)": -111.66,
+   "Horas baratas (%)": 72.36
+  },
+  {
+   "index": 2,
+   "Conjunto": "Prueba (test)",
+   "Periodo": "2026-08-06 a 2026-11-03",
+   "Horas": 2160,
+   "MAE": 159.25,
+   "MAPE (%)": 27.19,
+   "Sesgo (COP/kWh)": 62.59,
+   "Horas baratas (%)": 73.47
+  }
+ ],
+ "curva_aprendizaje": [
+  {
+   "index": 0,
+   "Árboles": 10,
+   "MAE entrenamiento": 176.34,
+   "MAE validación": 200.46
+  },
+  {
+   "index": 1,
+   "Árboles": 25,
+   "MAE entrenamiento": 176.18,
+   "MAE validación": 200.45
+  },
+  {
+   "index": 2,
+   "Árboles": 50,
+   "MAE entrenamiento": 176.15,
+   "MAE validación": 200.45
+  },
+  {
+   "index": 3,
+   "Árboles": 100,
+   "MAE entrenamiento": 176.15,
+   "MAE validación": 200.45
+  },
+  {
+   "index": 4,
+   "Árboles": 200,
+   "MAE entrenamiento": 176.15,
+   "MAE validación": 200.45
+  },
+  {
+   "index": 5,
+   "Árboles": 400,
+   "MAE entrenamiento": 176.15,
+   "MAE validación": 200.45
+  },
+  {
+   "index": 6,
+   "Árboles": 800,
+   "MAE entrenamiento": 176.15,
+   "MAE validación": 200.45
+  }
+ ],
+ "sensibilidad_ancla": [
+  {
+   "index": 0,
+   "Semanas del promedio": 1,
+   "MAE": 188.35,
+   "MAPE (%)": 34.48,
+   "Sesgo (COP/kWh)": -54.19,
+   "Horas baratas (%)": 70.0
+  },
+  {
+   "index": 1,
+   "Semanas del promedio": 2,
+   "MAE": 192.66,
+   "MAPE (%)": 34.48,
+   "Sesgo (COP/kWh)": -72.66,
+   "Horas baratas (%)": 71.39
+  },
+  {
+   "index": 2,
+   "Semanas del promedio": 3,
+   "MAE": 195.09,
+   "MAPE (%)": 34.52,
+   "Sesgo (COP/kWh)": -92.66,
+   "Horas baratas (%)": 70.69
+  },
+  {
+   "index": 3,
+   "Semanas del promedio": 4,
+   "MAE": 200.55,
+   "MAPE (%)": 35.14,
+   "Sesgo (COP/kWh)": -111.02,
+   "Horas baratas (%)": 72.08
+  },
+  {
+   "index": 4,
+   "Semanas del promedio": 6,
+   "MAE": 202.02,
+   "MAPE (%)": 32.37,
+   "Sesgo (COP/kWh)": -150.93,
+   "Horas baratas (%)": 73.33
+  }
+ ],
+ "errores": {
+  "por_regimen": [
+   {
+    "regimen": "Escasez",
+    "Horas": 2122,
+    "Precio medio": 723.0,
+    "MAE modelo": 159.3,
+    "MAE ingenuo": 141.8,
+    "Error relativo (%)": 22.0
+   },
+   {
+    "regimen": "Normal",
+    "Horas": 38,
+    "Precio medio": 416.7,
+    "MAE modelo": 156.9,
+    "MAE ingenuo": 175.4,
+    "Error relativo (%)": 37.7
+   }
+  ],
+  "por_tipo_dia": [
+   {
+    "tipo_dia": "Domingo o festivo",
+    "Horas": 408,
+    "Precio medio": 660.6,
+    "MAE modelo": 159.1,
+    "MAE ingenuo": 124.5,
+    "Error relativo (%)": 24.1
+   },
+   {
+    "tipo_dia": "Laboral",
+    "Horas": 1440,
+    "Precio medio": 733.6,
+    "MAE modelo": 155.9,
+    "MAE ingenuo": 142.3,
+    "Error relativo (%)": 21.3
+   },
+   {
+    "tipo_dia": "Sábado",
+    "Horas": 312,
+    "Precio medio": 718.7,
+    "MAE modelo": 174.8,
+    "MAE ingenuo": 166.1,
+    "Error relativo (%)": 24.3
+   }
+  ],
+  "peores_dias": [
+   {
+    "Día": "2026-09-12T00:00:00.000",
+    "precio_medio": 483.3,
+    "mae": 440.8,
+    "pico_real": 1136.1
+   },
+   {
+    "Día": "2026-09-10T00:00:00.000",
+    "precio_medio": 589.5,
+    "mae": 423.8,
+    "pico_real": 1846.7
+   },
+   {
+    "Día": "2026-09-13T00:00:00.000",
+    "precio_medio": 443.1,
+    "mae": 414.1,
+    "pico_real": 683.6
+   },
+   {
+    "Día": "2026-09-11T00:00:00.000",
+    "precio_medio": 546.1,
+    "mae": 409.5,
+    "pico_real": 1136.6
+   },
+   {
+    "Día": "2026-09-14T00:00:00.000",
+    "precio_medio": 534.5,
+    "mae": 365.3,
+    "pico_real": 1084.7
+   }
+  ],
+  "sesgo": 62.594138286386844
+ },
+ "walk_forward": [
+  {
+   "index": 0,
+   "Ventana": "2026-05-08 a 2026-06-06",
+   "Precio medio": 573.99,
+   "MAE modelo": 227.37,
+   "MAE promedio 4 sem.": 227.08,
+   "MAE ingenuo": 234.61,
+   "Horas baratas modelo (%)": 69.17,
+   "Horas baratas ingenuo (%)": 71.25,
+   "Gana al ingenuo": "Sí"
+  },
+  {
+   "index": 1,
+   "Ventana": "2026-06-07 a 2026-07-06",
+   "Precio medio": 590.51,
+   "MAE modelo": 211.95,
+   "MAE promedio 4 sem.": 212.91,
+   "MAE ingenuo": 176.1,
+   "Horas baratas modelo (%)": 75.42,
+   "Horas baratas ingenuo (%)": 70.0,
+   "Gana al ingenuo": "No"
+  },
+  {
+   "index": 2,
+   "Ventana": "2026-07-07 a 2026-08-05",
+   "Precio medio": 817.43,
+   "MAE modelo": 162.06,
+   "MAE promedio 4 sem.": 161.66,
+   "MAE ingenuo": 154.33,
+   "Horas baratas modelo (%)": 73.33,
+   "Horas baratas ingenuo (%)": 68.75,
+   "Gana al ingenuo": "No"
+  },
+  {
+   "index": 3,
+   "Ventana": "2026-08-06 a 2026-09-04",
+   "Precio medio": 946.72,
+   "MAE modelo": 120.02,
+   "MAE promedio 4 sem.": 118.45,
+   "MAE ingenuo": 127.87,
+   "Horas baratas modelo (%)": 75.83,
+   "Horas baratas ingenuo (%)": 69.58,
+   "Gana al ingenuo": "Sí"
+  },
+  {
+   "index": 4,
+   "Ventana": "2026-09-05 a 2026-10-04",
+   "Precio medio": 641.98,
+   "MAE modelo": 221.73,
+   "MAE promedio 4 sem.": 220.01,
+   "MAE ingenuo": 181.53,
+   "Horas baratas modelo (%)": 70.42,
+   "Horas baratas ingenuo (%)": 79.58,
+   "Gana al ingenuo": "No"
+  },
+  {
+   "index": 5,
+   "Ventana": "2026-10-05 a 2026-11-03",
+   "Precio medio": 564.19,
+   "MAE modelo": 136.45,
+   "MAE promedio 4 sem.": 136.79,
+   "MAE ingenuo": 117.77,
+   "Horas baratas modelo (%)": 74.58,
+   "Horas baratas ingenuo (%)": 69.58,
+   "Gana al ingenuo": "No"
+  }
+ ],
+ "casos_optimizador": [
+  {
+   "index": 0,
+   "Caso": "F1 · Fábrica: equipo libre de 5 h",
+   "Resultado esperado": "Opera 00:00–05:00 (la madrugada barata)",
+   "Cumple": "✅",
+   "Detalle": "horas elegidas [0, 1, 2, 3, 4]"
+  },
+  {
+   "index": 1,
+   "Caso": "F2 · Fábrica: bloque continuo en ventana",
+   "Resultado esperado": "4 h seguidas entre 06:00 y 17:00",
+   "Cumple": "✅",
+   "Detalle": "horas elegidas [13, 14, 15, 16]"
+  },
+  {
+   "index": 2,
+   "Caso": "F3 · Fábrica: corrida mínima (R5)",
+   "Resultado esperado": "Bloques de 4 h o más; R1–R5 cumplen",
+   "Cumple": "✅",
+   "Detalle": "6 h programadas"
+  },
+  {
+   "index": 3,
+   "Caso": "F4 · Fábrica: potencia máxima (R4)",
+   "Resultado esperado": "Pico total ≤ 4.500 kW (no operan juntos)",
+   "Cumple": "✅",
+   "Detalle": "pico 4,000 kW"
+  },
+  {
+   "index": 4,
+   "Caso": "F5 · Fábrica: caso imposible (8 h en ventana de 5 h)",
+   "Resultado esperado": "El validador marca incumplimiento (no se publica)",
+   "Cumple": "✅",
+   "Detalle": "2 reglas incumplidas detectadas"
+  },
+  {
+   "index": 5,
+   "Caso": "B1 · Flota: carga nocturna",
+   "Resultado esperado": "Carga entre 00:00 y 05:00, no en el pico 20–22",
+   "Cumple": "✅",
+   "Detalle": "horas con carga [0, 1, 2]"
+  },
+  {
+   "index": 6,
+   "Caso": "B2 · Flota: reglas y costo",
+   "Resultado esperado": "R1–R4 cumplen y costo ≤ carga inmediata",
+   "Cumple": "✅",
+   "Detalle": ""
+  },
+  {
+   "index": 7,
+   "Caso": "B3 · Flota: caso imposible (2 h y patio pequeño)",
+   "Resultado esperado": "Sin plan posible: se avisa, no se inventa",
+   "Cumple": "✅",
+   "Detalle": ""
+  },
+  {
+   "index": 8,
+   "Caso": "R1 · Caso Argos Rioclaro",
+   "Resultado esperado": "Todas las reglas cumplen y ahorra frente a la operación actual",
+   "Cumple": "✅",
+   "Detalle": ""
+  },
+  {
+   "index": 9,
+   "Caso": "R2 · Caso patio Fontibón I",
+   "Resultado esperado": "Todas las reglas cumplen y ahorra frente a la carga inmediata",
+   "Cumple": "✅",
+   "Detalle": ""
+  }
+ ],
+ "casos_optimizador_ok": 10,
+ "casos_optimizador_total": 10,
+ "llm": {
+  "hay_key": true,
+  "resumen": [
+   {
+    "index": 0,
+    "Variante": "LLM · prompt completo (VatioPlan)",
+    "Casos": 6,
+    "Formato OK (%)": 33.33,
+    "Casos sin cifras inventadas (%)": 50.0,
+    "Conducta esperada (%)": 50.0,
+    "Consistencia media": 0.75,
+    "Segundos por consulta": 7.86
+   },
+   {
+    "index": 1,
+    "Variante": "LLM · prompt simple",
+    "Casos": 6,
+    "Formato OK (%)": 0.0,
+    "Casos sin cifras inventadas (%)": 0.0,
+    "Conducta esperada (%)": 33.33,
+    "Consistencia media": 0.6,
+    "Segundos por consulta": 9.0
+   },
+   {
+    "index": 2,
+    "Variante": "Plantilla (sin IA)",
+    "Casos": 6,
+    "Formato OK (%)": 100.0,
+    "Casos sin cifras inventadas (%)": 100.0,
+    "Conducta esperada (%)": 100.0,
+    "Consistencia media": 1.0,
+    "Segundos por consulta": 0.0
+   }
+  ]
+ },
+ "perfiles": {
+  "fabrica": {
+   "usuario": "Cementos Argos · Planta Rioclaro (caso de referencia)",
+   "etiqueta": "🏭 Fábrica manufacturera",
+   "ahorro_real_backtest_pct": 11.126146951639704,
+   "ahorro_maximo_backtest_pct": 11.187965655997157,
+   "captura_del_potencial_pct": 99.44745357415077,
+   "ahorro_anual_cop": 3547057208.777777,
+   "dias_backtest": 90,
+   "costo_referencia_backtest_cop": 7860914023.530001,
+   "exposicion_bolsa": 0.5,
+   "comparacion": [
+    {
+     "index": 0,
+     "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
+     "MAE (COP/kWh)": 159.25,
+     "MAPE (%)": 27.19,
+     "Horas baratas acertadas (%)": 73.47,
+     "Ahorro real en backtest (%)": 11.13
+    },
+    {
+     "index": 1,
+     "Candidato": "Promedio 4 semanas",
+     "MAE (COP/kWh)": 158.42,
+     "MAPE (%)": 27.07,
+     "Horas baratas acertadas (%)": 73.75,
+     "Ahorro real en backtest (%)": 11.12
+    },
+    {
+     "index": 2,
+     "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
+     "MAE (COP/kWh)": 160.89,
+     "MAPE (%)": 27.64,
+     "Horas baratas acertadas (%)": 72.64,
+     "Ahorro real en backtest (%)": 11.11
+    },
+    {
+     "index": 3,
+     "Candidato": "Ingenuo (hace 7 días)",
+     "MAE (COP/kWh)": 142.39,
+     "MAPE (%)": 22.47,
+     "Horas baratas acertadas (%)": 72.92,
+     "Ahorro real en backtest (%)": 11.0
+    },
+    {
+     "index": 4,
+     "Candidato": "GB precio absoluto, todas las variables (versión original)",
+     "MAE (COP/kWh)": 244.31,
+     "MAPE (%)": 41.46,
+     "Horas baratas acertadas (%)": 64.17,
+     "Ahorro real en backtest (%)": 10.89
+    },
+    {
+     "index": 5,
+     "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
+     "MAE (COP/kWh)": 195.86,
+     "MAPE (%)": 30.23,
+     "Horas baratas acertadas (%)": 62.5,
+     "Ahorro real en backtest (%)": 9.87
+    }
+   ],
+   "resumen": {
+    "tipo_usuario": "Fábrica manufacturera",
+    "usuario": "Cementos Argos · Planta Rioclaro (caso de referencia)",
+    "fuente_datos": "REAL",
+    "plan_de_referencia": "Operación actual",
+    "ventanas_planeadas": 3,
+    "fechas": [
+     "2026-11-06 desde las 00:00",
+     "2026-11-07 desde las 00:00",
+     "2026-11-08 desde las 00:00"
+    ],
+    "costo_referencia_cop": 213644563,
+    "costo_vatioplan_cop": 178136800,
+    "ahorro_cop": 35507763,
+    "ahorro_pct": 16.6,
+    "horario_recomendado_primera_ventana": {
+     "Molino de crudo": "00:00–18:00",
+     "Molino de cemento 1": "00:00–16:00",
+     "Molino de cemento 2": "00:00–16:00",
+     "Molino de carbón": "00:00–10:00, 21:00–00:00",
+     "Trituradora de caliza": "10:00–16:00"
+    },
+    "horas_mas_caras": [
+     "17:00",
+     "18:00",
+     "19:00",
+     "20:00"
+    ],
+    "horas_mas_baratas": [
+     "00:00",
+     "01:00",
+     "09:00",
+     "10:00"
+    ],
+    "precio_max": 1310,
+    "precio_min": 315,
+    "precio_promedio": 564,
+    "mae_modelo": 159,
+    "acierto_horas_baratas": 0.73,
+    "ahorro_real_backtest_pct": 11.1,
+    "ahorro_maximo_backtest_pct": 11.2,
+    "dias_backtest": 90,
+    "exposicion_bolsa": 0.5,
+    "limite_potencia_kw": 21000,
+    "reglas": "todas cumplen",
+    "supuestos": "Argos no publica la potencia de cada equipo. Las potencias se estiman con la capacidad pública y los consumos específicos citados, suponiendo 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker. La exposición a bolsa (50 %) es un supuesto ajustable."
+   },
+   "informe": "### ⚡ Ahorro esperado: $35,507,763 COP (16.6%) en 3 días frente a operación actual\n\n**Cementos Argos · Planta Rioclaro (caso de referencia)** · Horario recomendado de operación (primera ventana):\n- **Molino de crudo**: 00:00–18:00\n- **Molino de cemento 1**: 00:00–16:00\n- **Molino de cemento 2**: 00:00–16:00\n- **Molino de carbón**: 00:00–10:00, 21:00–00:00\n- **Trituradora de caliza**: 10:00–16:00\n\n**Evitar:** 17:00, 18:00, 19:00, 20:00 (hasta 1,310 COP/kWh). **Aprovechar:** 00:00, 01:00, 09:00, 10:00 (desde 315 COP/kWh).\n\n**Confianza y supuestos:**\n- Ahorro real en backtest: 11.1% (máximo posible 11.2%, 90 días con precio real).\n- El pronóstico identifica 73% de las horas baratas (error medio 159 COP/kWh).\n- Exposición a precio de bolsa: 50% · límite de potencia 21,000 kW.\n- Reglas de ingeniería: todas cumplen.\n- Fuente de datos: REAL.",
+   "proveedor_ia": "plantilla (sin API key)"
+  },
+  "flota": {
+   "usuario": "Patio eléctrico Fontibón I – Refugio · SITP Bogotá (caso de referencia)",
+   "etiqueta": "🚌 Flota eléctrica",
+   "ahorro_real_backtest_pct": 17.10998961181236,
+   "ahorro_maximo_backtest_pct": 18.19041315794001,
+   "captura_del_potencial_pct": 94.06047824891732,
+   "ahorro_anual_cop": 556668591.5795335,
+   "dias_backtest": 89,
+   "costo_referencia_backtest_cop": 793312165.9288334,
+   "exposicion_bolsa": 0.5,
+   "comparacion": [
+    {
+     "index": 0,
+     "Candidato": "Promedio 4 semanas",
+     "MAE (COP/kWh)": 158.42,
+     "MAPE (%)": 27.07,
+     "Horas baratas acertadas (%)": 73.75,
+     "Ahorro real en backtest (%)": 17.11
+    },
+    {
+     "index": 1,
+     "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
+     "MAE (COP/kWh)": 159.25,
+     "MAPE (%)": 27.19,
+     "Horas baratas acertadas (%)": 73.47,
+     "Ahorro real en backtest (%)": 17.11
+    },
+    {
+     "index": 2,
+     "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
+     "MAE (COP/kWh)": 160.89,
+     "MAPE (%)": 27.64,
+     "Horas baratas acertadas (%)": 72.64,
+     "Ahorro real en backtest (%)": 16.85
+    },
+    {
+     "index": 3,
+     "Candidato": "Ingenuo (hace 7 días)",
+     "MAE (COP/kWh)": 142.39,
+     "MAPE (%)": 22.47,
+     "Horas baratas acertadas (%)": 72.92,
+     "Ahorro real en backtest (%)": 16.21
+    },
+    {
+     "index": 4,
+     "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
+     "MAE (COP/kWh)": 195.86,
+     "MAPE (%)": 30.23,
+     "Horas baratas acertadas (%)": 62.5,
+     "Ahorro real en backtest (%)": 15.92
+    },
+    {
+     "index": 5,
+     "Candidato": "GB precio absoluto, todas las variables (versión original)",
+     "MAE (COP/kWh)": 244.31,
+     "MAPE (%)": 41.46,
+     "Horas baratas acertadas (%)": 64.17,
+     "Ahorro real en backtest (%)": 15.44
+    }
+   ],
+   "resumen": {
+    "tipo_usuario": "Flota eléctrica",
+    "usuario": "Patio eléctrico Fontibón I – Refugio · SITP Bogotá (caso de referencia)",
+    "fuente_datos": "REAL",
+    "plan_de_referencia": "Carga inmediata",
+    "ventanas_planeadas": 3,
+    "fechas": [
+     "2026-11-06 desde las 12:00",
+     "2026-11-07 desde las 12:00",
+     "2026-11-08 desde las 12:00"
+    ],
+    "costo_referencia_cop": 22212641,
+    "costo_vatioplan_cop": 14864860,
+    "ahorro_cop": 7347782,
+    "ahorro_pct": 33.1,
+    "horario_recomendado_primera_ventana": {
+     "Padrón · turno A": "00:00–04:00",
+     "Padrón · turno B": "00:00–04:00",
+     "Busetón · turno A": "00:00–03:00",
+     "Busetón · turno B": "00:00–03:00"
+    },
+    "horas_mas_caras": [
+     "17:00",
+     "18:00",
+     "19:00",
+     "20:00"
+    ],
+    "horas_mas_baratas": [
+     "00:00",
+     "01:00",
+     "09:00",
+     "10:00"
+    ],
+    "precio_max": 1310,
+    "precio_min": 315,
+    "precio_promedio": 564,
+    "mae_modelo": 159,
+    "acierto_horas_baratas": 0.73,
+    "ahorro_real_backtest_pct": 17.1,
+    "ahorro_maximo_backtest_pct": 18.2,
+    "dias_backtest": 89,
+    "exposicion_bolsa": 0.5,
+    "limite_potencia_kw": 8400,
+    "reglas": "todas cumplen",
+    "supuestos": "La capacidad de batería de los buses del patio no es pública: se usan las de los modelos BYD de tamaño equivalente. Cada punto doble de 150 kW carga dos buses a la vez (75 kW por bus). El límite del patio (8.400 kW) es la suma de los 56 puntos. Horas de llegada y salida en dos turnos, carga de llegada de 25–30 % y exposición a bolsa de 50 % son supuestos ajustables."
+   },
+   "informe": "### Informe de optimización de carga – Patio eléctrico Fontibón I – Refugio\n\n**Titular**\n* **Ahorro esperado:** $7.347.782 COP (33,1 %) frente a \"Carga inmediata\".\n\n**Qué hacer (Horarios recomendados por grupo)**\n* **Padrón · turno A:** Cargar en el horario 00:00–04:00.\n* **Padrón · turno B:** Cargar en el horario 00:00–04:00.\n* **Busetón · turno A:** Cargar en el horario 00:00–03:00.\n* **Busetón · turno B:** Cargar en el horario 00:00–03:00.\n\n**Horas a evitar y aprovechar**\n* **Horas a evitar (más caras):** 17:00, 18:00, 19:00 y 20:00.\n* **Horas a aprovechar (más baratas):** 00:00, 01:00, 09:00 y 10:00.\n\n**Confianza**\n* **Evaluación en backtest (89 días):** Ahorro real medido del 17,1 % frente a un máximo posible del 18,2 %.\n\n**Riesgos y supuestos**\n* **Exposición a bolsa:** 50 % (0,5).\n* **Límite de potencia:** 8.400 kW.\n* **Reglas:** Todas cumplen.\n* **Fuente de datos:** REAL.\n* **Supuestos:** Capacidad de batería estimada con modelos BYD de tamaño equivalente. Cada punto doble de 150 kW carga dos buses a la vez (75 kW por bus). El límite del patio (8.400 kW) corresponde a la suma de los 56 puntos. Horas de llegada/salida en dos turnos, carga de llegada (25–30 %) y exposición a bolsa (50 %) son ajustables.",
+   "proveedor_ia": "Gemini"
+  }
+ }
+}

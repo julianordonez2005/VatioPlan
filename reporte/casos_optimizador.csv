@@ -1,0 +1,11 @@
+Caso,Resultado esperado,Cumple,Detalle
+F1 · Fábrica: equipo libre de 5 h,Opera 00:00–05:00 (la madrugada barata),✅,"horas elegidas [0, 1, 2, 3, 4]"
+F2 · Fábrica: bloque continuo en ventana,4 h seguidas entre 06:00 y 17:00,✅,"horas elegidas [13, 14, 15, 16]"
+F3 · Fábrica: corrida mínima (R5),Bloques de 4 h o más; R1–R5 cumplen,✅,6 h programadas
+F4 · Fábrica: potencia máxima (R4),Pico total ≤ 4.500 kW (no operan juntos),✅,"pico 4,000 kW"
+F5 · Fábrica: caso imposible (8 h en ventana de 5 h),El validador marca incumplimiento (no se publica),✅,2 reglas incumplidas detectadas
+B1 · Flota: carga nocturna,"Carga entre 00:00 y 05:00, no en el pico 20–22",✅,"horas con carga [0, 1, 2]"
+B2 · Flota: reglas y costo,R1–R4 cumplen y costo ≤ carga inmediata,✅,
+B3 · Flota: caso imposible (2 h y patio pequeño),"Sin plan posible: se avisa, no se inventa",✅,
+R1 · Caso Argos Rioclaro,Todas las reglas cumplen y ahorra frente a la operación actual,✅,
+R2 · Caso patio Fontibón I,Todas las reglas cumplen y ahorra frente a la carga inmediata,✅,

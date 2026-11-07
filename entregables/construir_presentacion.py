@@ -9,7 +9,6 @@ Si las cifras vienen de datos SIMULADOS, cada diapositiva lleva un aviso rojo.
 """
 from __future__ import annotations
 
-import copy
 import json
 import sys
 from pathlib import Path
@@ -18,7 +17,7 @@ from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.util import Emu, Inches, Pt
+from pptx.util import Inches, Pt
 
 RAIZ = Path(__file__).resolve().parent.parent
 PLANTILLA = RAIZ / "entregables" / "plantilla_vatioplan.pptx"
@@ -369,14 +368,22 @@ def construir():
     imagen(s, "val_walk_forward.png", Inches(9.4), Inches(2.5), w=Inches(9.2))
     wf = M["walk_forward"]
     gana = sum(1 for f in wf if f.get("Gana al ingenuo") == "Sí")
+    gana_hb = sum(1 for f in wf if f.get("Horas baratas modelo (%)", 0) > f.get("Horas baratas ingenuo (%)", 0))
+    mae = {f["Conjunto"]: f["MAE"] for f in so}
+    brecha = 100 * (mae["Validación"] / mae["Entrenamiento"] - 1) if mae.get("Entrenamiento") else 0
+    juicio = ("brecha pequeña → sin sobreajuste" if brecha < 25 else "brecha notable → el cambio de régimen pesa más "
+              "que la complejidad del modelo")
     texto(s, Inches(9.4), Inches(7.0), Inches(9.2), Inches(2.6),
-          [f"El modelo gana al ingenuo en {gana} de {len(wf)} ventanas de 30 días.",
-           "Entrenamiento y validación con error parecido → sin sobreajuste. El error sube en las semanas en que "
-           "cambia el régimen."], 18, AZUL, True)
-    notas(s, "(40 s) ¿Hay sobreajuste? El error en entrenamiento, validación y prueba es parecido, y la curva de "
-             "aprendizaje muestra que más árboles no abren una brecha. Para ver si generaliza, repetimos la prueba en "
-             f"{len(wf)} ventanas de 30 días hacia atrás: el modelo gana al ingenuo en {gana}. Donde pierde es cuando "
-             "el mercado cambia de régimen, y eso lo decimos abiertamente.")
+          [f"Validación vs. entrenamiento: {'+' if brecha >= 0 else ''}{num(brecha, 0)} % de MAE ({juicio}).",
+           f"Walk-forward: menor MAE que el ingenuo en {gana} de {len(wf)} ventanas; más horas baratas acertadas en "
+           f"{gana_hb} de {len(wf)}. Lo que decide el plan es ordenar las horas, no el valor exacto."], 17, AZUL, True)
+    notas(s, f"(40 s) ¿Hay sobreajuste? El error en validación es {num(abs(brecha), 0)} % "
+             f"{'mayor' if brecha >= 0 else 'menor'} que en entrenamiento y el de prueba es parecido; la curva de "
+             "aprendizaje muestra que más árboles no abren la brecha, así que la diferencia viene del cambio de "
+             f"régimen del mercado, no de memorizar. Para la generalización repetimos la prueba en {len(wf)} ventanas de "
+             f"30 días: en error absoluto el ingenuo gana en varias ventanas, porque los picos dominan el MAE; pero en "
+             f"acierto de horas baratas el modelo es mejor en {gana_hb} de {len(wf)}, y eso es lo que se traduce en "
+             "ahorro. Lo decimos abiertamente como límite.")
 
     # 10 · Análisis de errores y límites
     s = nueva(prs, "análisis de errores y límites", 10, "Conjunto de prueba (90 días que el modelo nunca vio)")
@@ -410,18 +417,27 @@ def construir():
         [f["Variante"].replace("LLM · ", ""), pct(f["Formato OK (%)"], 0), pct(f["Casos sin cifras inventadas (%)"], 0),
          pct(f["Conducta esperada (%)"], 0), num(f["Segundos por consulta"], 1)] for f in llm]
     tabla(s, filas, Inches(11.2), Inches(2.4), Inches(7.46), [3.4, 1.6, 2, 2, 1.4], tam=12, alto_fila=0.75)
-    texto(s, Inches(11.2), Inches(2.4) + Inches(0.75 * (len(llm) + 1)) + Inches(0.3), Inches(7.46), Inches(3.2),
-          ["6 casos: día normal (fábrica y flota), datos simulados, reglas incumplidas, ahorro cero y sin exposición.",
-           "Se mide formato, cifras que no están en los datos (alucinación), conducta en casos borde, consistencia "
-           "al repetir 3 veces y tiempo. Costo: $0 (capa gratuita)."], 15, TINTA)
+    v = {f["Variante"]: f for f in llm}
+    v1 = next((x for k, x in v.items() if "v1" in k), None)
+    v2 = next((x for k, x in v.items() if "v2" in k), None)
+    lineas = ["6 casos: día normal (fábrica y flota), datos simulados, reglas incumplidas, ahorro cero, sin exposición."]
+    if v1 and v2:
+        lineas.append(f"Ajuste del prompt v1 → v2 + verificación: formato {pct(v1['Formato OK (%)'], 0)} → "
+                      f"{pct(v2['Formato OK (%)'], 0)}; sin cifras inventadas {pct(v1['Casos sin cifras inventadas (%)'], 0)}"
+                      f" → {pct(v2['Casos sin cifras inventadas (%)'], 0)}.")
+    lineas.append("Si el LLM no pasa la verificación tras un reintento, se publica la plantilla. Costo: $0.")
+    texto(s, Inches(11.2), Inches(2.4) + Inches(0.75 * (len(llm) + 1)) + Inches(0.3), Inches(7.46), Inches(3.4),
+          lineas, 15, TINTA)
     texto(s, X0, Inches(9.45), Inches(9.6), Inches(0.5),
           f"{M['casos_optimizador_ok']} de {M['casos_optimizador_total']} casos cumplen, incluidos los imposibles.",
           17, AZUL, True)
     notas(s, "(40 s) Validamos cada componente por separado. El optimizador tiene diez casos con resultado esperado "
              "definido antes de correrlos, incluidos casos imposibles: el sistema debe avisar, no inventar un plan. "
              "Para el LLM armamos seis casos de prueba y medimos formato, cifras inventadas, conducta en casos borde, "
-             "consistencia al repetir y tiempo por consulta, y lo comparamos con un prompt simple y con la plantilla "
-             "sin IA.")
+             "consistencia al repetir y tiempo por consulta. La primera versión del prompt fallaba en formato y "
+             "en cifras inventadas en la mitad de los casos; por eso la ajustamos: estructura fija, prohibición de "
+             "calcular cifras nuevas, avisos obligatorios y una verificación automática con un reintento. Si aun así "
+             "falla, se publica la plantilla sin IA.")
 
     # 12 · Resultados de extremo a extremo
     s = nueva(prs, "resultado: ahorro con precios reales", 12,

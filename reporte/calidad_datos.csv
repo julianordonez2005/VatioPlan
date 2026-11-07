@@ -1,0 +1,5 @@
+Variable,Fuente,Desde,Hasta,Faltantes (%),Mín,Mediana,Máx,Atípicos (3×IQR),Ceros o negativos,Estado
+Precio de bolsa nacional (COP/kWh),SIMEM EC6945 · horario,2023-01-01,2026-11-03 23:00,0.0,95.9,409.8,2675.6,199,0,OK
+Volumen útil de embalses (%),API XM PorcVoluUtilDiar · diario,2023-01-01,2026-11-03 23:00,0.0,28.6,69.1,86.0,0,0,OK
+Aportes hídricos (GWh/día),API XM AporEner · diario,2023-01-01,2026-11-03 23:00,0.0,55.8,184.5,643.1,144,0,OK
+Índice ONI (El Niño/La Niña),NOAA CPC · mensual,2023-01-01,2026-11-03 23:00,0.0,-0.6,0.1,2.5,0,15288,OK

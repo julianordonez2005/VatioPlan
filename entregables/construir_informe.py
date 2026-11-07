@@ -171,18 +171,22 @@ def construir():
     tabla(filas, [6.8, 1.4, 1.6, 2.2, 2.4, 2.2])
     wf = M["walk_forward"]
     gana = sum(1 for f in wf if f.get("Gana al ingenuo") == "Sí")
+    gana_hb = sum(1 for f in wf if f.get("Horas baratas modelo (%)", 0) > f.get("Horas baratas ingenuo (%)", 0))
     reg = {f.get("regimen", f.get("index")): f for f in M["errores"]["por_regimen"]}
     texto_reg = "; ".join(f"{k.lower()} {num(v['MAE modelo'])}" for k, v in reg.items())
     llm = {f["Variante"]: f for f in M["llm"]["resumen"]}
     texto_llm = "; ".join(f"{k}: formato {pct(v['Formato OK (%)'], 0)}, sin cifras inventadas "
                           f"{pct(v['Casos sin cifras inventadas (%)'], 0)}, conducta esperada {pct(v['Conducta esperada (%)'], 0)}"
                           for k, v in llm.items())
-    parrafo(("Generalización y errores: ",), f"en validación walk-forward el modelo gana al ingenuo en {gana} de {len(wf)} "
-            f"ventanas de 30 días; el MAE por régimen es {texto_reg} COP/kWh y el error se concentra en el pico de la "
+    parrafo(("Generalización y errores: ",), f"en validación walk-forward el modelo tiene menor MAE que el ingenuo en {gana} de "
+            f"{len(wf)} ventanas de 30 días y acierta más horas baratas que el ingenuo en {gana_hb} de {len(wf)} (lo que "
+            f"decide el ahorro); el MAE por régimen es {texto_reg} COP/kWh y el error se concentra en el pico de la "
             "noche y en semanas de cambio de régimen. ", ("Optimizador: ",),
             f"{M['casos_optimizador_ok']} de {M['casos_optimizador_total']} casos de prueba con resultado esperado "
             "(incluidos casos imposibles, que deben detectarse). ", ("LLM: ",), f"6 casos con conducta esperada "
-            f"(normales, datos simulados, reglas incumplidas, ahorro cero, sin exposición), repetidos 3 veces — {texto_llm}.")
+            f"(normales, datos simulados, reglas incumplidas, ahorro cero, sin exposición), repetidos 2–3 veces — {texto_llm}. "
+            "El prompt v1 se ajustó a una v2 con estructura fija, prohibición de calcular cifras y avisos obligatorios, "
+            "más una verificación automática con un reintento y la plantilla como respaldo.")
 
     titulo("5. Resultados y aplicación")
     parrafo(f"Con precios reales, la fábrica ahorra {pct(fab['ahorro_real_backtest_pct'])} del costo de la energía "

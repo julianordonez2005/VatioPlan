@@ -24,7 +24,8 @@ GROQ_MODELO = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 LECTOR = {"Fábrica manufacturera": ("el jefe de planta", "equipo", "horario recomendado de operación"),
           "Flota eléctrica": ("el jefe de patio de la flota", "grupo de vehículos", "horario recomendado de carga")}
 
-INSTRUCCIONES = """Eres el asistente de energía de un cliente industrial en Colombia ({tipo}).
+# Versión 1 (anteproyecto). Se conserva para comparar en la evaluación (eval_llm.py).
+INSTRUCCIONES_V1 = """Eres el asistente de energía de un cliente industrial en Colombia ({tipo}).
 Con los DATOS (JSON) escribe un informe breve en español para {lector}:
 1. Titular de una línea con el ahorro esperado (en COP y %) frente a "{referencia}".
 2. Qué hacer: una línea por {elemento} con el {accion}.
@@ -33,6 +34,38 @@ Con los DATOS (JSON) escribe un informe breve en español para {lector}:
 5. Riesgos y supuestos (exposición a bolsa, límite de potencia, reglas verificadas, fuente de datos, supuestos del caso).
 Reglas: usa ÚNICAMENTE cifras que aparezcan en los DATOS; no inventes números;
 máximo 230 palabras; formato Markdown con viñetas cortas."""
+
+# Versión 2: estructura fija, reglas de cifras explícitas y avisos obligatorios. Se ajustó
+# después de evaluar la v1 (formato y cifras inventadas fallaban en la mitad de los casos).
+INSTRUCCIONES = """Eres el asistente de energía de un cliente en Colombia ({tipo}). Redacta en español,
+para {lector}, un informe con EXACTAMENTE esta estructura en Markdown:
+
+### ⚡ Ahorro esperado: $<ahorro_cop> COP (<ahorro_pct> %) frente a {referencia}
+**Qué hacer**
+- <una viñeta por {elemento}: nombre y {accion}, copiado de horario_recomendado_primera_ventana>
+**Horas**
+- Evitar: <horas_mas_caras> · Aprovechar: <horas_mas_baratas>
+**Confianza**
+- Ahorro real en backtest: <ahorro_real_backtest_pct> % (máximo <ahorro_maximo_backtest_pct> %, <dias_backtest> días)
+**Riesgos y supuestos**
+- <2 a 4 viñetas cortas: exposición a bolsa, reglas, fuente de datos, supuesto principal>
+
+REGLAS OBLIGATORIAS
+1. Cada cifra que escribas debe aparecer tal cual en los DATOS. No calcules porcentajes, sumas,
+   diferencias, promedios ni conversiones nuevas. Puedes escribir 0,5 como 50 %.
+2. La primera línea es el titular con el ahorro; usa solo viñetas que empiecen con "- ".
+3. Máximo {max_palabras} palabras. Sin introducción ni despedida.
+{avisos}"""
+
+AVISO_TEXTO = {
+    "avisar que los datos son SIMULADOS": "- Si fuente_datos no es REAL: escribe en la primera viñeta de riesgos "
+                                         "'DATOS SIMULADOS: no usar para decidir'.",
+    "avisar que hay reglas incumplidas y que el plan no debe ejecutarse": "- Las reglas tienen incumplimientos: "
+                                         "escribe 'reglas incumplidas: no ejecutar el plan sin revisión'.",
+    "decir que el ahorro es 0": "- El ahorro es 0: dilo explícitamente ('sin ahorro: 0 %') y no lo presentes como ganancia.",
+    "explicar que sin exposición a bolsa no hay ahorro en la factura": "- La exposición a bolsa es 0: explica que "
+                                         "sin exposición a bolsa mover el consumo no cambia la factura.",
+}
 
 
 def _gemini(prompt: str, key: str) -> str:
@@ -74,18 +107,73 @@ def plantilla(d: dict) -> str:
     return "\n".join(lin)
 
 
-def generar_informe(datos: dict) -> tuple[str, str]:
-    """Devuelve (texto_markdown, proveedor_usado)."""
+def prompt_para(datos: dict, version: int = 2) -> str:
+    from .verificacion import MAX_PALABRAS, avisos_obligatorios
     lector, elemento, accion = LECTOR.get(datos.get("tipo_usuario"), LECTOR["Fábrica manufacturera"])
-    instrucciones = INSTRUCCIONES.format(tipo=datos.get("tipo_usuario", "industria"), lector=lector,
-                                         referencia=datos.get("plan_de_referencia", "la operación actual"),
-                                         elemento=elemento, accion=accion)
-    prompt = f"{instrucciones}\n\nDATOS:\n{json.dumps(datos, ensure_ascii=False, indent=1, default=str)}"
+    referencia = datos.get("plan_de_referencia", "la operación actual")
+    if version == 1:
+        ins = INSTRUCCIONES_V1.format(tipo=datos.get("tipo_usuario", "industria"), lector=lector,
+                                      referencia=referencia, elemento=elemento, accion=accion)
+    else:
+        avisos = "\n".join(AVISO_TEXTO[d] for _, d in avisos_obligatorios(datos))
+        ins = INSTRUCCIONES.format(tipo=datos.get("tipo_usuario", "industria"), lector=lector,
+                                   referencia=referencia.lower(), elemento=elemento, accion=accion,
+                                   max_palabras=MAX_PALABRAS, avisos=("AVISOS OBLIGATORIOS\n" + avisos) if avisos else "")
+    return f"{ins}\n\nDATOS:\n{json.dumps(datos, ensure_ascii=False, indent=1, default=str)}"
+
+
+def _proveedores():
     for proveedor, var, fn in [("Gemini", "GEMINI_API_KEY", _gemini), ("Groq", "GROQ_API_KEY", _groq)]:
         key = os.getenv(var)
         if key:
+            yield proveedor, key, fn
+
+
+def llamar(prompt: str, intentos_429: int = 3) -> tuple[str, str]:
+    """Llama al primer proveedor disponible; ante límite de uso (429) espera y reintenta."""
+    import time
+    ultimo_error = None
+    for proveedor, key, fn in _proveedores():
+        for intento in range(intentos_429):
             try:
                 return fn(prompt, key), proveedor
-            except Exception as e:
-                print(f"⚠️  {proveedor} falló ({e}); probando la siguiente opción.")
-    return plantilla(datos), "plantilla (sin API key)"
+            except requests.HTTPError as e:
+                ultimo_error = e
+                if e.response is not None and e.response.status_code == 429 and intento < intentos_429 - 1:
+                    time.sleep(20 * (intento + 1))
+                    continue
+                break
+            except Exception as e:  # red, formato de respuesta
+                ultimo_error = e
+                break
+        print(f"⚠️  {proveedor} falló ({ultimo_error}); probando la siguiente opción.")
+    raise RuntimeError(f"ningún proveedor respondió ({ultimo_error})")
+
+
+def generar_informe(datos: dict, version: int = 2, verificar: bool = True) -> tuple[str, str]:
+    """Devuelve (texto_markdown, proveedor_usado).
+    Con verificar=True: si el texto no pasa la verificación (formato, cifras, avisos), se pide
+    UNA corrección al LLM indicando los problemas; si sigue fallando, se publica la plantilla."""
+    from .verificacion import problemas
+    if not any(True for _ in _proveedores()):
+        return plantilla(datos), "plantilla (sin API key)"
+    prompt = prompt_para(datos, version)
+    try:
+        texto, proveedor = llamar(prompt)
+    except RuntimeError as e:
+        print(f"⚠️  {e}")
+        return plantilla(datos), "plantilla (el LLM no respondió)"
+    if not verificar:
+        return texto, proveedor
+    fallas = problemas(texto, datos)
+    if not fallas:
+        return texto, proveedor
+    correccion = (f"{prompt}\n\nTu respuesta anterior fue:\n{texto}\n\nTenía estos problemas:\n- "
+                  + "\n- ".join(fallas) + "\nEscribe de nuevo el informe completo corrigiéndolos.")
+    try:
+        texto2, proveedor = llamar(correccion)
+    except RuntimeError:
+        return plantilla(datos), "plantilla (el LLM no pasó la verificación)"
+    if not problemas(texto2, datos):
+        return texto2, f"{proveedor} (corregido tras verificación)"
+    return plantilla(datos), "plantilla (el LLM no pasó la verificación)"

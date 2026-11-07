@@ -1,121 +1,54 @@
 """
 eval_llm.py — Evaluación del componente de IA generativa (el informe).
 
-El LLM no decide nada: redacta con cifras ya calculadas. Lo que hay que verificar es que
-  1. cumpla el FORMATO pedido (titular con ahorro, viñetas, ≤ 230 palabras),
+El LLM no decide nada: redacta con cifras ya calculadas. Se verifica que
+  1. cumpla el FORMATO pedido (titular con ahorro, viñetas, longitud),
   2. NO INVENTE cifras (toda cifra del texto debe estar en el JSON de entrada),
-  3. maneje los CASOS BORDE con la respuesta esperada que definimos (avisar datos simulados,
-     reglas incumplidas, ahorro nulo),
+  3. maneje los CASOS BORDE con la conducta esperada definida por el equipo
+     (avisar datos simulados, reglas incumplidas, ahorro cero, sin exposición),
   4. sea CONSISTENTE al repetir la misma entrada,
-  5. y cuánto TARDA y cuánto cuesta por consulta.
-Se compara contra un PROMPT SIMPLE (sin reglas) y contra la PLANTILLA sin IA.
+  5. y cuánto TARDA y cuesta por consulta.
+Variantes comparadas (ajuste de prompts):
+  * Plantilla sin IA (línea base sin LLM)
+  * Prompt simple ("resume estos datos")
+  * Prompt v1 (anteproyecto)
+  * Prompt v2 + verificación automática con un reintento (versión final de VatioPlan)
 
-Uso:  python -m vatioplan.eval_llm               (con GEMINI_API_KEY o GROQ_API_KEY)
-Sin key solo se evalúa la plantilla y se deja constancia.
+Uso:  python -m vatioplan.eval_llm   (necesita GEMINI_API_KEY o GROQ_API_KEY)
 """
 from __future__ import annotations
 
 import copy
 import json
 import os
-import re
 import time
 
 import numpy as np
 import pandas as pd
 
 from . import informe
+from .verificacion import _NUM, cifras_no_soportadas, conducta, formato  # noqa: F401  (re-exportadas)
 
 PROMPT_SIMPLE = "Resume estos datos de energía para el responsable de la operación:\n\n{datos}"
 
 
-# ---------------- casos de prueba ----------------
 def casos(resumen_fabrica: dict, resumen_flota: dict) -> list[dict]:
-    """Seis casos con la conducta esperada definida por el equipo."""
-    c = []
-    c.append({"caso": "Fábrica · día normal", "datos": copy.deepcopy(resumen_fabrica),
-              "debe_mencionar": ["ahorro"], "no_debe": []})
-    c.append({"caso": "Flota · día normal", "datos": copy.deepcopy(resumen_flota),
-              "debe_mencionar": ["ahorro"], "no_debe": []})
+    """Seis casos de prueba. La conducta esperada se deriva de los datos (verificacion.avisos_obligatorios)."""
+    c = [{"caso": "Fábrica · día normal", "datos": copy.deepcopy(resumen_fabrica)},
+         {"caso": "Flota · día normal", "datos": copy.deepcopy(resumen_flota)}]
     d = copy.deepcopy(resumen_fabrica)
     d["fuente_datos"] = "SIMULADO"
-    c.append({"caso": "Borde · datos simulados", "datos": d, "debe_mencionar": ["simulad"], "no_debe": []})
+    c.append({"caso": "Borde · datos simulados", "datos": d})
     d = copy.deepcopy(resumen_flota)
     d["reglas"] = "2 incumplimientos"
-    c.append({"caso": "Borde · reglas incumplidas", "datos": d, "debe_mencionar": ["incumpl"], "no_debe": []})
+    c.append({"caso": "Borde · reglas incumplidas", "datos": d})
     d = copy.deepcopy(resumen_fabrica)
     d.update({"costo_vatioplan_cop": d["costo_referencia_cop"], "ahorro_cop": 0, "ahorro_pct": 0.0})
-    c.append({"caso": "Borde · ahorro cero (precio plano)", "datos": d, "debe_mencionar": ["0"], "no_debe": []})
+    c.append({"caso": "Borde · ahorro cero (precio plano)", "datos": d})
     d = copy.deepcopy(resumen_flota)
     d["exposicion_bolsa"] = 0.0
-    c.append({"caso": "Borde · sin exposición a bolsa", "datos": d, "debe_mencionar": ["exposición"], "no_debe": []})
+    c.append({"caso": "Borde · sin exposición a bolsa", "datos": d})
     return c
-
-
-# ---------------- métricas ----------------
-_NUM = re.compile(r"(?<![\w:])\$?-?\d[\d.,]*%?")
-
-
-def _a_numero(texto: str) -> float | None:
-    t = texto.strip("$%").rstrip(".,")
-    if not t or not any(ch.isdigit() for ch in t):
-        return None
-    if re.fullmatch(r"-?\d{1,3}([.,]\d{3})+", t):          # separador de miles
-        return float(re.sub(r"[.,]", "", t))
-    t = t.replace(",", ".") if t.count(",") == 1 and t.count(".") == 0 else t.replace(",", "")
-    try:
-        return float(t)
-    except ValueError:
-        return None
-
-
-def _numeros_json(obj) -> set[float]:
-    vals = set()
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            vals |= _numeros_json(v)
-            vals |= _numeros_json(k) if isinstance(k, str) else set()
-    elif isinstance(obj, (list, tuple)):
-        for v in obj:
-            vals |= _numeros_json(v)
-    elif isinstance(obj, bool):
-        pass
-    elif isinstance(obj, (int, float)):
-        vals |= {float(obj), round(float(obj), 1), round(float(obj)), round(float(obj) * 100, 1),
-                 round(float(obj) * 100)}
-    elif isinstance(obj, str):
-        for m in _NUM.findall(obj):
-            n = _a_numero(m)
-            if n is not None:
-                vals.add(n)
-        for h in re.findall(r"(\d{1,2}):00", obj):
-            vals.add(float(h))
-    return vals
-
-
-def cifras_no_soportadas(texto: str, datos: dict) -> list[str]:
-    """Cifras del texto que no aparecen en los datos de entrada (posibles alucinaciones).
-    Se ignoran horas (hh:mm), fechas y enteros pequeños (≤ 24: conteos, horas, numeración)."""
-    limpio = re.sub(r"\d{4}-\d{2}-\d{2}", " ", texto)
-    limpio = re.sub(r"\d{1,2}:\d{2}", " ", limpio)
-    permitidos = _numeros_json(datos)
-    malos = []
-    for m in _NUM.findall(limpio):
-        n = _a_numero(m)
-        if n is None or (float(n).is_integer() and 0 <= n <= 24):
-            continue
-        if not any(abs(n - v) <= max(0.051, abs(v) * 0.005) for v in permitidos):
-            malos.append(m)
-    return malos
-
-
-def formato(texto: str) -> dict:
-    palabras = len(re.findall(r"\w+", texto))
-    lineas = [l.strip() for l in texto.splitlines() if l.strip()]
-    titular = bool(lineas) and bool(re.search(r"ahorr", lineas[0], re.I)) and bool(re.search(r"\d", lineas[0]))
-    vinetas = sum(l.startswith(("-", "*", "•")) for l in lineas)
-    return {"palabras": palabras, "titular_con_ahorro": titular, "vinetas": vinetas,
-            "formato_ok": titular and vinetas >= 3 and palabras <= 260}
 
 
 def _similitud(a: str, b: str) -> float:
@@ -123,79 +56,89 @@ def _similitud(a: str, b: str) -> float:
     return len(na & nb) / max(1, len(na | nb))
 
 
-# ---------------- ejecución ----------------
-def _llamar(prompt: str) -> tuple[str, str]:
-    for proveedor, var, fn in [("Gemini", "GEMINI_API_KEY", informe._gemini), ("Groq", "GROQ_API_KEY", informe._groq)]:
-        key = os.getenv(var)
-        if key:
-            return fn(prompt, key), proveedor
-    raise RuntimeError("sin API key")
-
-
-def _prompt_completo(datos: dict) -> str:
-    lector, elemento, accion = informe.LECTOR.get(datos.get("tipo_usuario"), informe.LECTOR["Fábrica manufacturera"])
-    ins = informe.INSTRUCCIONES.format(tipo=datos.get("tipo_usuario"), lector=lector,
-                                       referencia=datos.get("plan_de_referencia"), elemento=elemento, accion=accion)
-    return f"{ins}\n\nDATOS:\n{json.dumps(datos, ensure_ascii=False, indent=1, default=str)}"
-
-
-def evaluar(resumen_fabrica: dict, resumen_flota: dict, repeticiones: int = 3, pausa_s: float = 4.0) -> dict:
-    hay_key = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY"))
-    variantes = {"Plantilla (sin IA)": None}
+def _variantes(hay_key: bool) -> dict:
+    v = {"Plantilla (sin IA)": ("plantilla", 1)}
     if hay_key:
-        variantes["LLM · prompt completo (VatioPlan)"] = _prompt_completo
-        variantes["LLM · prompt simple"] = lambda d: PROMPT_SIMPLE.format(
-            datos=json.dumps(d, ensure_ascii=False, default=str))
+        v["LLM · prompt simple"] = ("simple", 2)
+        v["LLM · prompt v1 (anteproyecto)"] = ("v1", 2)
+        v["LLM · prompt v2 + verificación (final)"] = ("v2", 3)
+    return v
+
+
+def _ejecutar(tipo: str, datos: dict) -> tuple[str, str]:
+    if tipo == "plantilla":
+        return informe.plantilla(datos), "plantilla"
+    if tipo == "simple":
+        return informe.llamar(PROMPT_SIMPLE.format(datos=json.dumps(datos, ensure_ascii=False, default=str)))
+    if tipo == "v1":
+        return informe.llamar(informe.prompt_para(datos, version=1))
+    return informe.generar_informe(datos, version=2, verificar=True)
+
+
+def evaluar(resumen_fabrica: dict, resumen_flota: dict, pausa_s: float = 6.0) -> dict:
+    hay_key = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY"))
     filas, ejemplos = [], {}
     for caso in casos(resumen_fabrica, resumen_flota):
-        for nombre, armar in variantes.items():
+        for nombre, (tipo, repeticiones) in _variantes(hay_key).items():
             textos, tiempos, proveedor = [], [], "plantilla"
-            for _ in range(1 if armar is None else repeticiones):
+            for _ in range(repeticiones):
                 t0 = time.time()
                 try:
-                    if armar is None:
-                        texto = informe.plantilla(caso["datos"])
-                    else:
-                        texto, proveedor = _llamar(armar(caso["datos"]))
-                        time.sleep(pausa_s)          # respeta el límite de la capa gratuita
+                    texto, proveedor = _ejecutar(tipo, caso["datos"])
                 except Exception as e:  # se registra el fallo como resultado
                     texto = f"ERROR: {e}"
                 tiempos.append(time.time() - t0)
                 textos.append(texto)
+                if tipo != "plantilla":
+                    time.sleep(pausa_s)          # respeta el límite de la capa gratuita
             principal = textos[0]
             f = formato(principal)
             malos = cifras_no_soportadas(principal, caso["datos"])
-            menciona = all(m.lower() in principal.lower() for m in caso["debe_mencionar"])
+            faltan = conducta(principal, caso["datos"])
             consist = np.mean([_similitud(principal, t) for t in textos[1:]]) if len(textos) > 1 else 1.0
             filas.append({"Caso": caso["caso"], "Variante": nombre, "Proveedor": proveedor,
                           "Formato OK": f["formato_ok"], "Palabras": f["palabras"],
                           "Cifras inventadas": len(malos), "Ejemplos inventadas": ", ".join(malos[:4]),
-                          "Conducta esperada": menciona, "Consistencia (0-1)": round(float(consist), 2),
+                          "Conducta esperada": not faltan, "Avisos faltantes": "; ".join(faltan),
+                          "Consistencia (0-1)": round(float(consist), 2),
                           "Segundos por consulta": round(float(np.mean(tiempos)), 2)})
-            ejemplos[(caso["caso"], nombre)] = principal
+            ejemplos[f"{caso['caso']} | {nombre}"] = principal
     t = pd.DataFrame(filas)
+    orden = list(_variantes(hay_key))
     resumen = t.groupby("Variante").agg(**{
         "Casos": ("Caso", "count"),
         "Formato OK (%)": ("Formato OK", lambda s: 100 * s.mean()),
         "Casos sin cifras inventadas (%)": ("Cifras inventadas", lambda s: 100 * (s == 0).mean()),
         "Conducta esperada (%)": ("Conducta esperada", lambda s: 100 * s.mean()),
         "Consistencia media": ("Consistencia (0-1)", "mean"),
-        "Segundos por consulta": ("Segundos por consulta", "mean")}).round(2).reset_index()
-    return {"detalle": t, "resumen": resumen, "hay_key": hay_key,
-            "ejemplos": {f"{a} | {b}": v for (a, b), v in ejemplos.items()}}
+        "Segundos por consulta": ("Segundos por consulta", "mean")}).round(2).reindex(orden).reset_index()
+    return {"detalle": t, "resumen": resumen, "hay_key": hay_key, "ejemplos": ejemplos}
 
 
 if __name__ == "__main__":
     from pathlib import Path
-    raiz = Path(__file__).resolve().parent.parent / "salidas"
-    rf = json.loads((raiz / "fabrica" / "resumen.json").read_text(encoding="utf-8"))
-    rl = json.loads((raiz / "flota" / "resumen.json").read_text(encoding="utf-8"))
+    raiz = Path(__file__).resolve().parent.parent
+    rf = json.loads((raiz / "salidas" / "fabrica" / "resumen.json").read_text(encoding="utf-8"))
+    rl = json.loads((raiz / "salidas" / "flota" / "resumen.json").read_text(encoding="utf-8"))
     for d in (rf, rl):                      # solo lo que recibe el LLM en producción
         d.pop("comparacion_modelos", None)
         d.pop("proveedor_ia", None)
     r = evaluar(rf, rl)
-    pd.set_option("display.width", 180)
+    pd.set_option("display.width", 200)
     print(r["resumen"])
-    print(r["detalle"])
+    print(r["detalle"][["Caso", "Variante", "Formato OK", "Cifras inventadas", "Ejemplos inventadas",
+                        "Avisos faltantes"]])
     if not r["hay_key"]:
         print("\nSin GEMINI_API_KEY / GROQ_API_KEY: solo se evaluó la plantilla.")
+    salida = raiz / "reporte"
+    salida.mkdir(exist_ok=True)
+    r["detalle"].to_csv(salida / "eval_llm_detalle.csv", index=False)
+    (salida / "eval_llm_ejemplos.json").write_text(json.dumps(r["ejemplos"], ensure_ascii=False, indent=1),
+                                                    encoding="utf-8")
+    m = salida / "metricas.json"
+    if m.exists():                           # actualiza solo la sección del LLM del reporte
+        met = json.loads(m.read_text(encoding="utf-8"))
+        met["llm"] = {"hay_key": r["hay_key"], "resumen": json.loads(r["resumen"].to_json(orient="records",
+                                                                                          force_ascii=False))}
+        m.write_text(json.dumps(met, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+        print("Actualizado reporte/metricas.json (sección LLM).")

@@ -426,10 +426,11 @@ with tab_inf:
     else:
         texto, proveedor = plantilla(resumen), "plantilla (pulse el botón para redactar con IA)"
     st.markdown(texto)
-    from vatioplan.eval_llm import cifras_no_soportadas
-    inventadas = cifras_no_soportadas(texto, resumen)
-    st.caption(f"Redactado con: {proveedor}. Verificación de cifras: "
-               + ("✅ todas aparecen en los datos." if not inventadas else f"⚠️ revisar {', '.join(inventadas)}"))
+    from vatioplan.verificacion import problemas
+    fallas = problemas(texto, resumen)
+    st.caption(f"Redactado con: {proveedor}. Verificación automática (formato, cifras y avisos): "
+               + ("✅ todas las cifras aparecen en los datos y el formato cumple." if not fallas
+                  else "⚠️ " + "; ".join(fallas)))
     st.download_button("⬇️ Descargar informe", texto, file_name=f"informe_vatioplan_{tipo}.md")
     with st.expander("Datos que recibe la IA (JSON)"):
         st.json(resumen)

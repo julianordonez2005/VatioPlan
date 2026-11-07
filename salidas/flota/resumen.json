@@ -1,0 +1,91 @@
+{
+  "tipo_usuario": "Flota eléctrica",
+  "usuario": "Patio eléctrico Fontibón I – Refugio · SITP Bogotá (caso de referencia)",
+  "fuente_datos": "REAL",
+  "plan_de_referencia": "Carga inmediata",
+  "ventanas_planeadas": 3,
+  "fechas": [
+    "2026-11-06 desde las 12:00",
+    "2026-11-07 desde las 12:00",
+    "2026-11-08 desde las 12:00"
+  ],
+  "costo_referencia_cop": 22212641,
+  "costo_vatioplan_cop": 14864860,
+  "ahorro_cop": 7347782,
+  "ahorro_pct": 33.1,
+  "horario_recomendado_primera_ventana": {
+    "Padrón · turno A": "00:00–04:00",
+    "Padrón · turno B": "00:00–04:00",
+    "Busetón · turno A": "00:00–03:00",
+    "Busetón · turno B": "00:00–03:00"
+  },
+  "horas_mas_caras": [
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00"
+  ],
+  "horas_mas_baratas": [
+    "00:00",
+    "01:00",
+    "09:00",
+    "10:00"
+  ],
+  "precio_max": 1310,
+  "precio_min": 315,
+  "precio_promedio": 564,
+  "mae_modelo": 159,
+  "acierto_horas_baratas": 0.73,
+  "ahorro_real_backtest_pct": 17.1,
+  "ahorro_maximo_backtest_pct": 18.2,
+  "dias_backtest": 89,
+  "exposicion_bolsa": 0.5,
+  "limite_potencia_kw": 8400,
+  "reglas": "todas cumplen",
+  "supuestos": "La capacidad de batería de los buses del patio no es pública: se usan las de los modelos BYD de tamaño equivalente. Cada punto doble de 150 kW carga dos buses a la vez (75 kW por bus). El límite del patio (8.400 kW) es la suma de los 56 puntos. Horas de llegada y salida en dos turnos, carga de llegada de 25–30 % y exposición a bolsa de 50 % son supuestos ajustables.",
+  "comparacion_modelos": [
+    {
+      "Candidato": "Promedio 4 semanas",
+      "MAE (COP/kWh)": 158.4,
+      "MAPE (%)": 27.1,
+      "Horas baratas acertadas (%)": 73.8,
+      "Ahorro real en backtest (%)": 17.1
+    },
+    {
+      "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
+      "MAE (COP/kWh)": 159.3,
+      "MAPE (%)": 27.2,
+      "Horas baratas acertadas (%)": 73.5,
+      "Ahorro real en backtest (%)": 17.1
+    },
+    {
+      "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
+      "MAE (COP/kWh)": 160.9,
+      "MAPE (%)": 27.6,
+      "Horas baratas acertadas (%)": 72.6,
+      "Ahorro real en backtest (%)": 16.9
+    },
+    {
+      "Candidato": "Ingenuo (hace 7 días)",
+      "MAE (COP/kWh)": 142.4,
+      "MAPE (%)": 22.5,
+      "Horas baratas acertadas (%)": 72.9,
+      "Ahorro real en backtest (%)": 16.2
+    },
+    {
+      "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
+      "MAE (COP/kWh)": 195.9,
+      "MAPE (%)": 30.2,
+      "Horas baratas acertadas (%)": 62.5,
+      "Ahorro real en backtest (%)": 15.9
+    },
+    {
+      "Candidato": "GB precio absoluto, todas las variables (versión original)",
+      "MAE (COP/kWh)": 244.3,
+      "MAPE (%)": 41.5,
+      "Horas baratas acertadas (%)": 64.2,
+      "Ahorro real en backtest (%)": 15.4
+    }
+  ],
+  "proveedor_ia": "sin informe"
+}

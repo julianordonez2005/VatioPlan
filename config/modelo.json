@@ -1,0 +1,12 @@
+{
+  "hiperparametros": {
+    "semanas_promedio": 4,
+    "learning_rate": 0.05,
+    "max_iter": 400,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 100,
+    "l2_regularization": 1.0
+  },
+  "elegidos_con": "MAE en el conjunto de validación (vatioplan/validacion.py)",
+  "fecha": "2026-11-06"
+}
