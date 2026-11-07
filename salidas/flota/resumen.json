@@ -9,9 +9,9 @@
     "2026-11-08 desde las 12:00",
     "2026-11-09 desde las 12:00"
   ],
-  "costo_referencia_cop": 19246314,
-  "costo_vatioplan_cop": 14131512,
-  "ahorro_cop": 5114802,
+  "costo_referencia_cop": 19244003,
+  "costo_vatioplan_cop": 14130618,
+  "ahorro_cop": 5113385,
   "ahorro_pct": 26.6,
   "horario_recomendado_primera_ventana": {
     "Padrón · turno A": "00:00–04:00",
@@ -32,12 +32,12 @@
     "10:00"
   ],
   "precio_max": 1309,
-  "precio_min": 315,
-  "precio_promedio": 564,
+  "precio_min": 314,
+  "precio_promedio": 554,
   "mae_modelo": 159,
   "acierto_horas_baratas": 0.73,
-  "ahorro_real_backtest_pct": 17.1,
-  "ahorro_maximo_backtest_pct": 18.2,
+  "ahorro_real_backtest_pct": 17.4,
+  "ahorro_maximo_backtest_pct": 18.4,
   "dias_backtest": 89,
   "exposicion_bolsa": 0.5,
   "limite_potencia_kw": 8400,
@@ -45,47 +45,47 @@
   "supuestos": "La capacidad de batería de los buses del patio no es pública: se usan las de los modelos BYD de tamaño equivalente. Cada punto doble de 150 kW carga dos buses a la vez (75 kW por bus). El límite del patio (8.400 kW) es la suma de los 56 puntos. Horas de llegada y salida en dos turnos, carga de llegada de 25–30 % y exposición a bolsa de 50 % son supuestos ajustables.",
   "comparacion_modelos": [
     {
-      "Candidato": "Promedio 4 semanas",
-      "MAE (COP/kWh)": 158.4,
-      "MAPE (%)": 27.1,
-      "Horas baratas acertadas (%)": 73.8,
-      "Ahorro real en backtest (%)": 17.1
-    },
-    {
       "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
       "MAE (COP/kWh)": 159.2,
-      "MAPE (%)": 27.2,
-      "Horas baratas acertadas (%)": 73.5,
-      "Ahorro real en backtest (%)": 17.1
+      "MAPE (%)": 27.5,
+      "Horas baratas acertadas (%)": 73.3,
+      "Ahorro real en backtest (%)": 17.4
     },
     {
       "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
-      "MAE (COP/kWh)": 160.9,
-      "MAPE (%)": 27.6,
-      "Horas baratas acertadas (%)": 72.6,
-      "Ahorro real en backtest (%)": 16.9
+      "MAE (COP/kWh)": 161.4,
+      "MAPE (%)": 28.0,
+      "Horas baratas acertadas (%)": 69.7,
+      "Ahorro real en backtest (%)": 17.3
+    },
+    {
+      "Candidato": "Promedio 4 semanas",
+      "MAE (COP/kWh)": 158.5,
+      "MAPE (%)": 27.4,
+      "Horas baratas acertadas (%)": 73.9,
+      "Ahorro real en backtest (%)": 17.3
     },
     {
       "Candidato": "Ingenuo (hace 7 días)",
-      "MAE (COP/kWh)": 142.4,
-      "MAPE (%)": 22.5,
-      "Horas baratas acertadas (%)": 72.9,
-      "Ahorro real en backtest (%)": 16.2
-    },
-    {
-      "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
-      "MAE (COP/kWh)": 198.8,
-      "MAPE (%)": 30.4,
-      "Horas baratas acertadas (%)": 63.5,
-      "Ahorro real en backtest (%)": 15.9
+      "MAE (COP/kWh)": 143.0,
+      "MAPE (%)": 22.8,
+      "Horas baratas acertadas (%)": 73.1,
+      "Ahorro real en backtest (%)": 16.4
     },
     {
       "Candidato": "GB precio absoluto, todas las variables (versión original)",
-      "MAE (COP/kWh)": 248.3,
-      "MAPE (%)": 42.0,
-      "Horas baratas acertadas (%)": 63.9,
-      "Ahorro real en backtest (%)": 15.6
+      "MAE (COP/kWh)": 254.2,
+      "MAPE (%)": 44.7,
+      "Horas baratas acertadas (%)": 64.7,
+      "Ahorro real en backtest (%)": 16.3
+    },
+    {
+      "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
+      "MAE (COP/kWh)": 194.3,
+      "MAPE (%)": 30.2,
+      "Horas baratas acertadas (%)": 63.7,
+      "Ahorro real en backtest (%)": 16.1
     }
   ],
-  "proveedor_ia": "plantilla (el LLM no respondió)"
+  "proveedor_ia": "plantilla (el LLM no pasó la verificación)"
 }
