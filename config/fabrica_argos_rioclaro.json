@@ -1,0 +1,32 @@
+{
+  "tipo": "fabrica",
+  "nombre": "Cementos Argos · Planta Rioclaro (caso de referencia)",
+  "descripcion": "Planta integrada de cemento en el Magdalena Medio antioqueño. Capacidad pública: 4.000 t/día de clínker y 4.245 t/día de cemento. El horno opera 24/7 y no es flexible; los molinos y la trituradora sí, porque los silos y el patio de caliza guardan el material ya procesado.",
+  "potencia_maxima_kw": 21000,
+  "exposicion_bolsa": 0.5,
+  "carga_base_kw": {"turno_operado": 6800, "noche": 6000, "inicio_turno": 6, "fin_turno": 22},
+  "cargas_flexibles": [
+    {"nombre": "Molino de crudo", "potencia_kw": 6000, "horas_dia": 18, "continua": false,
+     "min_horas_seguidas": 6, "horas_permitidas": [0, 23], "inicio_actual": 18,
+     "motivo_restriccion": "6.200 t/día de harina cruda a 360 t/h; el silo de homogenización da autonomía al horno. Corrida mínima de 6 h."},
+    {"nombre": "Molino de cemento 1", "potencia_kw": 3500, "horas_dia": 16, "continua": false,
+     "min_horas_seguidas": 4, "horas_permitidas": [0, 23], "inicio_actual": 6,
+     "motivo_restriccion": "100 t/h a 35 kWh/t; los silos de cemento cubren el despacho. Corrida mínima de 4 h."},
+    {"nombre": "Molino de cemento 2", "potencia_kw": 3500, "horas_dia": 16, "continua": false,
+     "min_horas_seguidas": 4, "horas_permitidas": [0, 23], "inicio_actual": 14,
+     "motivo_restriccion": "100 t/h a 35 kWh/t; los silos de cemento cubren el despacho. Corrida mínima de 4 h."},
+    {"nombre": "Molino de carbón", "potencia_kw": 1000, "horas_dia": 13, "continua": false,
+     "min_horas_seguidas": 3, "horas_permitidas": [0, 23], "inicio_actual": 8,
+     "motivo_restriccion": "40 t/h a 25 kWh/t; la tolva de carbón molido alimenta el quemador. Corrida mínima de 3 h."},
+    {"nombre": "Trituradora de caliza", "potencia_kw": 900, "horas_dia": 6, "continua": true,
+     "horas_permitidas": [6, 17], "inicio_actual": 7,
+     "motivo_restriccion": "Depende del turno de cantera y de las volquetas (6:00 a 18:00); opera en un solo bloque."}
+  ],
+  "fuentes": [
+    "Capacidad de clínker y cemento: CemNet (2014), 'Revamping Rioclaro', https://cemnet.com/Articles/story/154516/revamping-rioclaro.html",
+    "Consumos específicos (horno 36 kWh/t clínker, cemento 32–37 kWh/t, carbón ~25 kWh/t, trituración 0,5–0,9 kWh/t): Worrell, Kermeli y Galitsky (2013), ENERGY STAR Guide for the Cement Industry, EPA 430-R-13-009",
+    "Molino de crudo de referencia (6 MW, 360 t/h, corrida mínima 6 h, silo de 15.000 t): Rojas-Innocenti et al., 'Electrical Consumption Flexibility in the Cement Industry', arXiv:2403.06573",
+    "Ahorro por reprogramación en cementeras (4,2 %, el doble con precio mayorista): Summerbell et al. (2017), Applied Energy 197, 100–113, https://doi.org/10.1016/j.apenergy.2017.03.083"
+  ],
+  "supuestos": "Argos no publica la potencia de cada equipo. Las potencias se estiman con la capacidad pública y los consumos específicos citados, suponiendo 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker. La exposición a bolsa (50 %) es un supuesto ajustable."
+}

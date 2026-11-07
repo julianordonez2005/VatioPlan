@@ -1,0 +1,25 @@
+{
+  "tipo": "flota",
+  "nombre": "Patio eléctrico Fontibón I – Refugio · SITP Bogotá (caso de referencia)",
+  "descripcion": "Primer patio 100 % eléctrico del SITP, operado por Gran Américas Fontibón I (concesión de 15 años). 120 buses BYD: 60 padrón (80 pasajeros) y 60 busetones (50 pasajeros), 56 puntos dobles de carga y 260 km de autonomía. Los buses zonales operan de 4:00 a 23:00 y cargan de noche en el patio.",
+  "potencia_patio_kw": 8400,
+  "hora_inicio": 12,
+  "exposicion_bolsa": 0.5,
+  "grupos": [
+    {"nombre": "Padrón · turno A", "cantidad": 30, "bateria_kwh": 313, "cargador_kw": 75,
+     "hora_llegada": 21, "hora_salida": 4, "carga_llegada_pct": 30, "carga_salida_pct": 95},
+    {"nombre": "Padrón · turno B", "cantidad": 30, "bateria_kwh": 313, "cargador_kw": 75,
+     "hora_llegada": 23, "hora_salida": 5, "carga_llegada_pct": 30, "carga_salida_pct": 95},
+    {"nombre": "Busetón · turno A", "cantidad": 30, "bateria_kwh": 215, "cargador_kw": 75,
+     "hora_llegada": 20, "hora_salida": 4, "carga_llegada_pct": 25, "carga_salida_pct": 95},
+    {"nombre": "Busetón · turno B", "cantidad": 30, "bateria_kwh": 215, "cargador_kw": 75,
+     "hora_llegada": 22, "hora_salida": 5, "carga_llegada_pct": 25, "carga_salida_pct": 95}
+  ],
+  "fuentes": [
+    "Flota, operador, 56 puntos dobles, 150 kW, 2–4 h de carga, 260 km: Alcaldía de Bogotá / El Tiempo (2020), 'Bogotá estrena primer patio 100 % eléctrico y 120 buses cero emisiones', https://bogota.gov.co/mi-ciudad/movilidad/bogota-estrena-primer-patio-100-electrico-y-120-buses-cero-emisiones",
+    "Cargadores de 150 kW compartidos por dos buses (≈4 h) y patio Fontibón III de 13,6 MVA: Enel X (2022), comunicado 'Enel X entregó 172 buses eléctricos y el quinto patio de recarga a Bogotá'",
+    "Horario de los buses zonales del SITP (4:00 a 23:00): Alcaldía de Bogotá, https://bogota.gov.co/mi-ciudad/movilidad/toque-de-queda-hasta-que-hora-operan-los-buses-zonales-del-sitp",
+    "Baterías de referencia BYD K9 (12 m, 313 kWh, ~253 km) y K7 (8,5 m, 215 kWh): ficha de la serie BYD K, https://en.wikipedia.org/wiki/BYD_K_series"
+  ],
+  "supuestos": "La capacidad de batería de los buses del patio no es pública: se usan las de los modelos BYD de tamaño equivalente. Cada punto doble de 150 kW carga dos buses a la vez (75 kW por bus). El límite del patio (8.400 kW) es la suma de los 56 puntos. Horas de llegada y salida en dos turnos, carga de llegada de 25–30 % y exposición a bolsa de 50 % son supuestos ajustables."
+}
