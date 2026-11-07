@@ -2,21 +2,21 @@
   "fuente": "REAL",
   "ultimo_dato": "2026-11-03 23:00",
   "fechas_planeadas": [
-    "2026-11-06",
     "2026-11-07",
-    "2026-11-08"
+    "2026-11-08",
+    "2026-11-09"
   ],
   "metricas_modelo": {
     "periodo_prueba": "2026-08-06 a 2026-11-03",
     "horas_entrenamiento": 31344,
     "horas_prueba": 2160,
-    "mae_modelo": 159.25327495015114,
+    "mae_modelo": 159.2346740289921,
     "mae_base": 142.38815009259258,
-    "mape_modelo": 27.190240550438965,
+    "mape_modelo": 27.188242803147446,
     "mape_base": 22.468405654426814,
     "acierto_horas_baratas_modelo": 0.7347222222222223,
     "acierto_horas_baratas_base": 0.7291666666666666,
-    "mejora_mae_pct": -11.84447220263165
+    "mejora_mae_pct": -11.831408670907306
   },
   "perfiles": {
     "fabrica": {

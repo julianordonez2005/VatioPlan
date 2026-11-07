@@ -5,14 +5,14 @@
   "plan_de_referencia": "Carga inmediata",
   "ventanas_planeadas": 3,
   "fechas": [
-    "2026-11-06 desde las 12:00",
     "2026-11-07 desde las 12:00",
-    "2026-11-08 desde las 12:00"
+    "2026-11-08 desde las 12:00",
+    "2026-11-09 desde las 12:00"
   ],
-  "costo_referencia_cop": 22212641,
-  "costo_vatioplan_cop": 14864860,
-  "ahorro_cop": 7347782,
-  "ahorro_pct": 33.1,
+  "costo_referencia_cop": 19246314,
+  "costo_vatioplan_cop": 14131512,
+  "ahorro_cop": 5114802,
+  "ahorro_pct": 26.6,
   "horario_recomendado_primera_ventana": {
     "Padrón · turno A": "00:00–04:00",
     "Padrón · turno B": "00:00–04:00",
@@ -31,7 +31,7 @@
     "09:00",
     "10:00"
   ],
-  "precio_max": 1310,
+  "precio_max": 1309,
   "precio_min": 315,
   "precio_promedio": 564,
   "mae_modelo": 159,
@@ -53,7 +53,7 @@
     },
     {
       "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
-      "MAE (COP/kWh)": 159.3,
+      "MAE (COP/kWh)": 159.2,
       "MAPE (%)": 27.2,
       "Horas baratas acertadas (%)": 73.5,
       "Ahorro real en backtest (%)": 17.1
@@ -74,18 +74,18 @@
     },
     {
       "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
-      "MAE (COP/kWh)": 195.9,
-      "MAPE (%)": 30.2,
-      "Horas baratas acertadas (%)": 62.5,
+      "MAE (COP/kWh)": 198.8,
+      "MAPE (%)": 30.4,
+      "Horas baratas acertadas (%)": 63.5,
       "Ahorro real en backtest (%)": 15.9
     },
     {
       "Candidato": "GB precio absoluto, todas las variables (versión original)",
-      "MAE (COP/kWh)": 244.3,
-      "MAPE (%)": 41.5,
-      "Horas baratas acertadas (%)": 64.2,
-      "Ahorro real en backtest (%)": 15.4
+      "MAE (COP/kWh)": 248.3,
+      "MAPE (%)": 42.0,
+      "Horas baratas acertadas (%)": 63.9,
+      "Ahorro real en backtest (%)": 15.6
     }
   ],
-  "proveedor_ia": "sin informe"
+  "proveedor_ia": "plantilla (el LLM no respondió)"
 }
