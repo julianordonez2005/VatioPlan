@@ -1,19 +1,25 @@
-Caso,Variante,Proveedor,Formato OK,Palabras,Cifras inventadas,Ejemplos inventadas,Conducta esperada,Consistencia (0-1),Segundos por consulta
-Fábrica · día normal,Plantilla (sin IA),plantilla,True,148,0,,True,1.0,0.0
-Fábrica · día normal,LLM · prompt completo (VatioPlan),Gemini,True,165,0,,True,0.94,16.88
-Fábrica · día normal,LLM · prompt simple,Gemini,False,256,1,100%,True,0.62,15.58
-Flota · día normal,Plantilla (sin IA),plantilla,True,138,0,,True,1.0,0.0
-Flota · día normal,LLM · prompt completo (VatioPlan),Gemini,True,189,0,,True,0.31,15.65
-Flota · día normal,LLM · prompt simple,Gemini,False,305,1,100%,True,0.81,17.28
-Borde · datos simulados,Plantilla (sin IA),plantilla,True,148,0,,True,1.0,0.0
-Borde · datos simulados,LLM · prompt completo (VatioPlan),Gemini,False,183,0,,True,0.24,11.9
-Borde · datos simulados,LLM · prompt simple,Gemini,False,20,2,"429, 3.5",False,0.0,11.21
-Borde · reglas incumplidas,Plantilla (sin IA),plantilla,True,138,0,,True,1.0,0.0
-Borde · reglas incumplidas,LLM · prompt completo (VatioPlan),plantilla,False,20,2,"429, 3.5",False,1.0,0.77
-Borde · reglas incumplidas,LLM · prompt simple,Gemini,False,20,2,"429, 3.5",False,0.5,6.87
-Borde · ahorro cero (precio plano),Plantilla (sin IA),plantilla,True,146,0,,True,1.0,0.0
-Borde · ahorro cero (precio plano),LLM · prompt completo (VatioPlan),plantilla,False,20,2,"429, 3.5",False,1.0,0.84
-Borde · ahorro cero (precio plano),LLM · prompt simple,plantilla,False,20,2,"429, 3.5",False,1.0,0.95
-Borde · sin exposición a bolsa,Plantilla (sin IA),plantilla,True,138,0,,True,1.0,0.0
-Borde · sin exposición a bolsa,LLM · prompt completo (VatioPlan),plantilla,False,20,2,"429, 3.5",False,1.0,1.09
-Borde · sin exposición a bolsa,LLM · prompt simple,plantilla,False,20,2,"429, 3.5",False,0.67,2.09
+Caso,Variante,Proveedor,Formato OK,Palabras,Cifras inventadas,Ejemplos inventadas,Conducta esperada,Avisos faltantes,Consistencia (0-1),Segundos por consulta
+Fábrica · día normal,Plantilla (sin IA),plantilla,True,148,0,,True,,1.0,0.0
+Fábrica · día normal,LLM · prompt simple,Groq,False,742,14,"832, 907, 627, 255",True,,1.0,4.05
+Fábrica · día normal,LLM · prompt v1 (anteproyecto),Groq,True,167,2,"0.1, 200",True,,1.0,2.58
+Fábrica · día normal,LLM · prompt v2 + verificación (final),Groq,True,118,0,,True,,0.91,2.25
+Flota · día normal,Plantilla (sin IA),plantilla,True,138,0,,True,,1.0,0.0
+Flota · día normal,LLM · prompt simple,Groq,False,671,16,"400, 246, 131, 512",True,,1.0,3.69
+Flota · día normal,LLM · prompt v1 (anteproyecto),Groq,True,184,4,"114, 802, 309, 400",True,,1.0,2.51
+Flota · día normal,LLM · prompt v2 + verificación (final),plantilla (el LLM no pasó la verificación),True,98,0,,True,,0.41,4.11
+Borde · datos simulados,Plantilla (sin IA),plantilla,True,148,0,,True,,1.0,0.0
+Borde · datos simulados,LLM · prompt simple,Groq,False,731,15,"832, 907, 627, 255",True,,1.0,3.77
+Borde · datos simulados,LLM · prompt v1 (anteproyecto),Groq,True,160,0,,True,,1.0,23.38
+Borde · datos simulados,LLM · prompt v2 + verificación (final),Groq,True,109,0,,True,,0.9,13.12
+Borde · reglas incumplidas,Plantilla (sin IA),plantilla,True,138,0,,True,,1.0,0.0
+Borde · reglas incumplidas,LLM · prompt simple,Groq,False,578,10,"400, 246, 131, 512",True,,1.0,3.32
+Borde · reglas incumplidas,LLM · prompt v1 (anteproyecto),Groq,True,182,2,"1.1, 400",True,,1.0,2.68
+Borde · reglas incumplidas,LLM · prompt v2 + verificación (final),Groq,True,112,0,,True,,0.94,2.69
+Borde · ahorro cero (precio plano),Plantilla (sin IA),plantilla,True,146,0,,True,,1.0,0.0
+Borde · ahorro cero (precio plano),LLM · prompt simple,Groq,False,449,6,"832, 907, 832, 907",True,,1.0,2.68
+Borde · ahorro cero (precio plano),LLM · prompt v1 (anteproyecto),Groq,True,217,4,"200, 832, 907, 309",False,decir que el ahorro es 0,1.0,23.06
+Borde · ahorro cero (precio plano),LLM · prompt v2 + verificación (final),Groq,True,115,0,,True,,0.91,3.41
+Borde · sin exposición a bolsa,Plantilla (sin IA),plantilla,True,138,0,,True,,1.0,0.0
+Borde · sin exposición a bolsa,LLM · prompt simple,Groq,False,790,20,"246, 131, 512, 114",True,,1.0,4.43
+Borde · sin exposición a bolsa,LLM · prompt v1 (anteproyecto),Groq,True,203,4,"114, 802, 309, 400",True,,1.0,23.33
+Borde · sin exposición a bolsa,LLM · prompt v2 + verificación (final),plantilla (el LLM no pasó la verificación),True,105,0,,True,,0.41,14.27

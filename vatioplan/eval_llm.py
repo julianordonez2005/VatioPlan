@@ -56,12 +56,16 @@ def _similitud(a: str, b: str) -> float:
     return len(na & nb) / max(1, len(na | nb))
 
 
-def _variantes(hay_key: bool) -> dict:
+class CuotaAgotada(RuntimeError):
+    """La capa gratuita del proveedor no acepta más solicitudes por ahora (error 429 repetido)."""
+
+
+def _variantes(hay_key: bool, rapido: bool = False) -> dict:
     v = {"Plantilla (sin IA)": ("plantilla", 1)}
     if hay_key:
-        v["LLM · prompt simple"] = ("simple", 2)
-        v["LLM · prompt v1 (anteproyecto)"] = ("v1", 2)
-        v["LLM · prompt v2 + verificación (final)"] = ("v2", 3)
+        v["LLM · prompt simple"] = ("simple", 1 if rapido else 2)
+        v["LLM · prompt v1 (anteproyecto)"] = ("v1", 1 if rapido else 2)
+        v["LLM · prompt v2 + verificación (final)"] = ("v2", 2 if rapido else 3)
     return v
 
 
@@ -72,21 +76,29 @@ def _ejecutar(tipo: str, datos: dict) -> tuple[str, str]:
         return informe.llamar(PROMPT_SIMPLE.format(datos=json.dumps(datos, ensure_ascii=False, default=str)))
     if tipo == "v1":
         return informe.llamar(informe.prompt_para(datos, version=1))
-    return informe.generar_informe(datos, version=2, verificar=True)
+    texto, proveedor = informe.generar_informe(datos, version=2, verificar=True)
+    if proveedor.startswith("plantilla (el LLM no respondió"):
+        raise CuotaAgotada("el LLM no respondió")
+    return texto, proveedor
 
 
-def evaluar(resumen_fabrica: dict, resumen_flota: dict, pausa_s: float = 6.0) -> dict:
+def evaluar(resumen_fabrica: dict, resumen_flota: dict, pausa_s: float = 6.0, rapido: bool = False) -> dict:
     hay_key = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY"))
     filas, ejemplos = [], {}
     for caso in casos(resumen_fabrica, resumen_flota):
-        for nombre, (tipo, repeticiones) in _variantes(hay_key).items():
+        for nombre, (tipo, repeticiones) in _variantes(hay_key, rapido).items():
             textos, tiempos, proveedor = [], [], "plantilla"
             for _ in range(repeticiones):
                 t0 = time.time()
                 try:
                     texto, proveedor = _ejecutar(tipo, caso["datos"])
-                except Exception as e:  # se registra el fallo como resultado
-                    texto = f"ERROR: {e}"
+                except Exception as e:
+                    if "429" in str(e) or isinstance(e, CuotaAgotada):
+                        raise CuotaAgotada(
+                            "La cuota gratuita de la API se agotó (error 429). Las métricas quedarían falsas, así "
+                            "que la evaluación se detiene sin guardar. Espere a que se renueve la cuota o use "
+                            "--rapido / una GROQ_API_KEY.") from e
+                    texto = f"ERROR: {e}"      # otros fallos se registran como resultado
                 tiempos.append(time.time() - t0)
                 textos.append(texto)
                 if tipo != "plantilla":
@@ -104,7 +116,7 @@ def evaluar(resumen_fabrica: dict, resumen_flota: dict, pausa_s: float = 6.0) ->
                           "Segundos por consulta": round(float(np.mean(tiempos)), 2)})
             ejemplos[f"{caso['caso']} | {nombre}"] = principal
     t = pd.DataFrame(filas)
-    orden = list(_variantes(hay_key))
+    orden = list(_variantes(hay_key, rapido))
     resumen = t.groupby("Variante").agg(**{
         "Casos": ("Caso", "count"),
         "Formato OK (%)": ("Formato OK", lambda s: 100 * s.mean()),
@@ -116,14 +128,22 @@ def evaluar(resumen_fabrica: dict, resumen_flota: dict, pausa_s: float = 6.0) ->
 
 
 if __name__ == "__main__":
+    import argparse
+    import sys
     from pathlib import Path
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rapido", action="store_true", help="Menos repeticiones (≈ 25 llamadas en vez de ≈ 50)")
+    args = ap.parse_args()
     raiz = Path(__file__).resolve().parent.parent
     rf = json.loads((raiz / "salidas" / "fabrica" / "resumen.json").read_text(encoding="utf-8"))
     rl = json.loads((raiz / "salidas" / "flota" / "resumen.json").read_text(encoding="utf-8"))
     for d in (rf, rl):                      # solo lo que recibe el LLM en producción
         d.pop("comparacion_modelos", None)
         d.pop("proveedor_ia", None)
-    r = evaluar(rf, rl)
+    try:
+        r = evaluar(rf, rl, rapido=args.rapido)
+    except CuotaAgotada as e:
+        sys.exit(f"\n⛔ {e}")
     pd.set_option("display.width", 200)
     print(r["resumen"])
     print(r["detalle"][["Caso", "Variante", "Formato OK", "Cifras inventadas", "Ejemplos inventadas",

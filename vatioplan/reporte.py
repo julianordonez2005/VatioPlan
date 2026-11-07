@@ -138,7 +138,7 @@ def figuras(r, val, err, wf, fuente):
             ax.legend(); _marca(fig, fuente); _guardar(fig, f"backtest_{tipo}.png")
 
 
-def main(guardar_params: bool = False):
+def main(guardar_params: bool = False, sin_llm: bool = False):
     CARPETA.mkdir(exist_ok=True)
     print("1/5 Pipeline completo (datos, modelo, dos usuarios, informes)…")
     r = ejecutar(verbose=False, con_informe=True)
@@ -158,10 +158,25 @@ def main(guardar_params: bool = False):
     casos = casos_optimizador()
     casos.to_csv(CARPETA / "casos_optimizador.csv", index=False)
     resumenes = {t: dict(res["resumen"]) for t, res in r["perfiles"].items()}
-    llm = eval_llm.evaluar(resumenes.get("fabrica"), resumenes.get("flota"))
-    llm["detalle"].to_csv(CARPETA / "eval_llm_detalle.csv", index=False)
-    (CARPETA / "eval_llm_ejemplos.json").write_text(json.dumps(llm["ejemplos"], ensure_ascii=False, indent=1),
-                                                     encoding="utf-8")
+    llm_previo = None
+    if (CARPETA / "metricas.json").exists():
+        llm_previo = json.loads((CARPETA / "metricas.json").read_text(encoding="utf-8")).get("llm")
+    if sin_llm:
+        llm = None
+        print("   (evaluación del LLM omitida: se conserva la anterior; córrala con python -m vatioplan.eval_llm)")
+    else:
+        try:
+            llm = eval_llm.evaluar(resumenes.get("fabrica"), resumenes.get("flota"))
+        except eval_llm.CuotaAgotada as e:
+            print(f"   ⚠️ {e}\n   Se conserva la evaluación anterior del LLM.")
+            llm = None
+    if llm is not None:
+        llm["detalle"].to_csv(CARPETA / "eval_llm_detalle.csv", index=False)
+        (CARPETA / "eval_llm_ejemplos.json").write_text(json.dumps(llm["ejemplos"], ensure_ascii=False, indent=1),
+                                                         encoding="utf-8")
+        seccion_llm = {"hay_key": llm["hay_key"], "resumen": _registros(llm["resumen"])}
+    else:
+        seccion_llm = llm_previo or {"hay_key": False, "resumen": []}
     print("5/5 Figuras y métricas…")
     figuras(r, val, err, wf, fuente)
 
@@ -200,7 +215,7 @@ def main(guardar_params: bool = False):
         "walk_forward": _registros(wf.round(2)),
         "casos_optimizador": _registros(casos), "casos_optimizador_ok": int((casos["Cumple"] == "✅").sum()),
         "casos_optimizador_total": len(casos),
-        "llm": {"hay_key": llm["hay_key"], "resumen": _registros(llm["resumen"])},
+        "llm": seccion_llm,
         "perfiles": perfiles,
     }
     (CARPETA / "metricas.json").write_text(json.dumps(metricas, ensure_ascii=False, indent=1, default=str),
@@ -216,4 +231,6 @@ def main(guardar_params: bool = False):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--guardar-params", action="store_true")
-    main(ap.parse_args().guardar_params)
+    ap.add_argument("--sin-llm", action="store_true", help="No volver a evaluar el LLM (ahorra cuota de la API)")
+    a = ap.parse_args()
+    main(a.guardar_params, a.sin_llm)

@@ -123,7 +123,12 @@ def prompt_para(datos: dict, version: int = 2) -> str:
 
 
 def _proveedores():
-    for proveedor, var, fn in [("Gemini", "GEMINI_API_KEY", _gemini), ("Groq", "GROQ_API_KEY", _groq)]:
+    """Proveedores con API key, en orden. LLM_PROVEEDOR=groq pone primero a Groq (útil si Gemini
+    agotó su cuota gratuita del día)."""
+    orden = [("Gemini", "GEMINI_API_KEY", _gemini), ("Groq", "GROQ_API_KEY", _groq)]
+    if os.getenv("LLM_PROVEEDOR", "").strip().lower() == "groq":
+        orden.reverse()
+    for proveedor, var, fn in orden:
         key = os.getenv(var)
         if key:
             yield proveedor, key, fn

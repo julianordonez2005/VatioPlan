@@ -528,27 +528,6 @@
   "hay_key": true,
   "resumen": [
    {
-    "index": 0,
-    "Variante": "LLM · prompt completo (VatioPlan)",
-    "Casos": 6,
-    "Formato OK (%)": 33.33,
-    "Casos sin cifras inventadas (%)": 50.0,
-    "Conducta esperada (%)": 50.0,
-    "Consistencia media": 0.75,
-    "Segundos por consulta": 7.86
-   },
-   {
-    "index": 1,
-    "Variante": "LLM · prompt simple",
-    "Casos": 6,
-    "Formato OK (%)": 0.0,
-    "Casos sin cifras inventadas (%)": 0.0,
-    "Conducta esperada (%)": 33.33,
-    "Consistencia media": 0.6,
-    "Segundos por consulta": 9.0
-   },
-   {
-    "index": 2,
     "Variante": "Plantilla (sin IA)",
     "Casos": 6,
     "Formato OK (%)": 100.0,
@@ -556,6 +535,33 @@
     "Conducta esperada (%)": 100.0,
     "Consistencia media": 1.0,
     "Segundos por consulta": 0.0
+   },
+   {
+    "Variante": "LLM · prompt simple",
+    "Casos": 6,
+    "Formato OK (%)": 0.0,
+    "Casos sin cifras inventadas (%)": 0.0,
+    "Conducta esperada (%)": 100.0,
+    "Consistencia media": 1.0,
+    "Segundos por consulta": 3.66
+   },
+   {
+    "Variante": "LLM · prompt v1 (anteproyecto)",
+    "Casos": 6,
+    "Formato OK (%)": 100.0,
+    "Casos sin cifras inventadas (%)": 16.67,
+    "Conducta esperada (%)": 83.33,
+    "Consistencia media": 1.0,
+    "Segundos por consulta": 12.92
+   },
+   {
+    "Variante": "LLM · prompt v2 + verificación (final)",
+    "Casos": 6,
+    "Formato OK (%)": 100.0,
+    "Casos sin cifras inventadas (%)": 100.0,
+    "Conducta esperada (%)": 100.0,
+    "Consistencia media": 0.75,
+    "Segundos por consulta": 6.64
    }
   ]
  },
