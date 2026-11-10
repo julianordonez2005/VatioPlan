@@ -1,4 +1,5 @@
-### ⚡ Ahorro esperado: $28764826 COP (15.7 %) frente a operación actual  
+### ⚡ Ahorro esperado: $36850815 COP (19.0 %) frente a operación actual  
+
 **Qué hacer**  
 - Molino de crudo: 00:00–18:00  
 - Molino de cemento 1: 00:00–16:00  
@@ -10,10 +11,10 @@
 - Evitar: 17:00, 18:00, 19:00, 20:00 · Aprovechar: 00:00, 01:00, 08:00, 09:00  
 
 **Confianza**  
-- Ahorro real en backtest: 11.5 % (máximo 11.6 %, 90 días)  
+- Ahorro real en backtest: 11.6 % (máximo 11.7 %, 90 días)  
 
 **Riesgos y supuestos**  
-- Exposición a bolsa: 0.5 (50 %)  
-- Reglas: todas cumplen  
-- Fuente de datos: REAL  
-- Supuesto principal: potencias estimadas con 80 % de utilización y consumo específico citado.
+- exposición a bolsa: 0.5  
+- reglas: todas cumplen  
+- fuente de datos: REAL  
+- supuesto principal: potencias estimadas con capacidad pública y consumos específicos, 80 % de utilización.
