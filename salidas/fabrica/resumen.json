@@ -5,14 +5,14 @@
   "plan_de_referencia": "Operación actual",
   "ventanas_planeadas": 3,
   "fechas": [
-    "2026-11-10 desde las 00:00",
     "2026-11-11 desde las 00:00",
-    "2026-11-12 desde las 00:00"
+    "2026-11-12 desde las 00:00",
+    "2026-11-13 desde las 00:00"
   ],
-  "costo_referencia_cop": 194441847,
-  "costo_vatioplan_cop": 157591033,
-  "ahorro_cop": 36850815,
-  "ahorro_pct": 19.0,
+  "costo_referencia_cop": 199995217,
+  "costo_vatioplan_cop": 162138091,
+  "ahorro_cop": 37857126,
+  "ahorro_pct": 18.9,
   "horario_recomendado_primera_ventana": {
     "Molino de crudo": "00:00–18:00",
     "Molino de cemento 1": "00:00–16:00",
@@ -32,13 +32,13 @@
     "08:00",
     "09:00"
   ],
-  "precio_max": 1402,
-  "precio_min": 314,
-  "precio_promedio": 509,
+  "precio_max": 1404,
+  "precio_min": 244,
+  "precio_promedio": 500,
   "mae_modelo": 163,
   "acierto_horas_baratas": 0.73,
-  "ahorro_real_backtest_pct": 11.6,
-  "ahorro_maximo_backtest_pct": 11.7,
+  "ahorro_real_backtest_pct": 11.7,
+  "ahorro_maximo_backtest_pct": 11.8,
   "dias_backtest": 90,
   "exposicion_bolsa": 0.5,
   "limite_potencia_kw": 21000,
@@ -46,47 +46,47 @@
   "supuestos": "Argos no publica la potencia de cada equipo. Las potencias se estiman con la capacidad pública y los consumos específicos citados, suponiendo 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker. La exposición a bolsa (50 %) es un supuesto ajustable.",
   "comparacion_modelos": [
     {
+      "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
+      "MAE (COP/kWh)": 166.5,
+      "MAPE (%)": 31.2,
+      "Horas baratas acertadas (%)": 73.6,
+      "Ahorro real en backtest (%)": 11.8
+    },
+    {
       "Candidato": "GB sobre promedio 4 semanas (modelo principal)",
-      "MAE (COP/kWh)": 162.7,
-      "MAPE (%)": 29.5,
-      "Horas baratas acertadas (%)": 73.5,
-      "Ahorro real en backtest (%)": 11.6
+      "MAE (COP/kWh)": 163.1,
+      "MAPE (%)": 30.4,
+      "Horas baratas acertadas (%)": 72.9,
+      "Ahorro real en backtest (%)": 11.7
     },
     {
       "Candidato": "Promedio 4 semanas",
-      "MAE (COP/kWh)": 162.2,
-      "MAPE (%)": 29.4,
+      "MAE (COP/kWh)": 162.5,
+      "MAPE (%)": 30.3,
+      "Horas baratas acertadas (%)": 73.5,
+      "Ahorro real en backtest (%)": 11.7
+    },
+    {
+      "Candidato": "Ingenuo (hace 7 días)",
+      "MAE (COP/kWh)": 143.9,
+      "MAPE (%)": 23.8,
       "Horas baratas acertadas (%)": 73.3,
       "Ahorro real en backtest (%)": 11.6
     },
     {
-      "Candidato": "Red neuronal (MLP) sobre promedio 4 semanas",
-      "MAE (COP/kWh)": 168.5,
-      "MAPE (%)": 30.9,
-      "Horas baratas acertadas (%)": 71.0,
-      "Ahorro real en backtest (%)": 11.6
-    },
-    {
-      "Candidato": "Ingenuo (hace 7 días)",
-      "MAE (COP/kWh)": 144.1,
-      "MAPE (%)": 23.6,
-      "Horas baratas acertadas (%)": 72.5,
-      "Ahorro real en backtest (%)": 11.5
-    },
-    {
       "Candidato": "GB precio absoluto, todas las variables (versión original)",
-      "MAE (COP/kWh)": 203.5,
-      "MAPE (%)": 37.0,
-      "Horas baratas acertadas (%)": 62.6,
+      "MAE (COP/kWh)": 236.6,
+      "MAPE (%)": 45.1,
+      "Horas baratas acertadas (%)": 62.2,
       "Ahorro real en backtest (%)": 10.7
     },
     {
       "Candidato": "GB sobre ingenuo con rezagos (versión anterior)",
-      "MAE (COP/kWh)": 205.8,
-      "MAPE (%)": 33.1,
-      "Horas baratas acertadas (%)": 63.6,
+      "MAE (COP/kWh)": 210.6,
+      "MAPE (%)": 35.0,
+      "Horas baratas acertadas (%)": 62.1,
       "Ahorro real en backtest (%)": 10.3
     }
   ],
-  "proveedor_ia": "Groq"
+  "proveedor_ia": "Gemini"
 }
