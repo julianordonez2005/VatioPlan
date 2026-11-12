@@ -1,4 +1,4 @@
-### ⚡ Ahorro esperado: $37857126 COP (18.9 %) frente a operación actual
+### ⚡ Ahorro esperado: $39128356 COP (19.4 %) frente a operación actual
 **Qué hacer**
 - Molino de crudo: 00:00–18:00
 - Molino de cemento 1: 00:00–16:00
@@ -8,9 +8,9 @@
 **Horas**
 - Evitar: 17:00, 18:00, 19:00, 20:00 · Aprovechar: 00:00, 01:00, 08:00, 09:00
 **Confianza**
-- Ahorro real en backtest: 11.7 % (máximo 11.8 %, 90 días)
+- Ahorro real en backtest: 12.0 % (máximo 12.1 %, 90 días)
 **Riesgos y supuestos**
 - Exposición a bolsa: 50 %
-- Reglas: todas cumplen (límite de potencia 21000 kW)
+- Reglas: todas cumplen
 - Fuente de datos: REAL
-- Supuesto principal: potencias estimadas con 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker
+- Supuesto principal: Las potencias se estiman suponiendo 80 % de utilización.
