@@ -1,16 +1,16 @@
-### ⚡ Ahorro esperado: $27116814 COP (16.9 %) frente a operación actual
+### ⚡ Ahorro esperado: $29684523 COP (18.8 %) frente a operación actual
 **Qué hacer**
 - Molino de crudo: 00:00–18:00
-- Molino de cemento 1: 00:00–16:00
+- Molino de cemento 1: 00:00–06:00, 07:00–17:00
 - Molino de cemento 2: 00:00–16:00
-- Molino de carbón: 00:00–10:00, 21:00–00:00
-- Trituradora de caliza: 10:00–16:00
+- Molino de carbón: 00:00–07:00, 12:00–18:00
+- Trituradora de caliza: 06:00–12:00
 **Horas**
 - Evitar: 17:00, 18:00, 19:00, 20:00 · Aprovechar: 00:00, 01:00, 08:00, 09:00
 **Confianza**
-- Ahorro real en backtest: 12.6 % (máximo 12.6 %, 90 días)
+- Ahorro real en backtest: 12.8 % (máximo 12.9 %, 90 días)
 **Riesgos y supuestos**
-- Exposición a bolsa: 50 % (supuesto ajustable)
-- Reglas: todas cumplen
-- Fuente de datos: REAL
-- Supuesto principal: potencias estimadas con 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker
+- Exposición a bolsa: 50 % (supuesto ajustable).
+- Reglas: todas cumplen.
+- Fuente de datos: REAL.
+- Supuesto principal: potencias estimadas suponiendo 80 % de utilización (3.200 t/día de cemento) y 1,55 t de harina cruda por t de clínker.
