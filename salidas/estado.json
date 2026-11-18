@@ -1,27 +1,27 @@
 {
   "fuente": "REAL",
-  "ultimo_dato": "2026-11-14 23:00",
+  "ultimo_dato": "2026-11-15 23:00",
   "fechas_planeadas": [
-    "2026-11-17",
     "2026-11-18",
-    "2026-11-19"
+    "2026-11-19",
+    "2026-11-20"
   ],
   "metricas_modelo": {
-    "periodo_prueba": "2026-08-17 a 2026-11-14",
-    "horas_entrenamiento": 31608,
+    "periodo_prueba": "2026-08-18 a 2026-11-15",
+    "horas_entrenamiento": 31632,
     "horas_prueba": 2160,
-    "mae_modelo": 163.27854486627476,
-    "mae_base": 147.56473787037038,
-    "mape_modelo": 32.312891535001455,
-    "mape_base": 25.13065009028183,
-    "acierto_horas_baratas_modelo": 0.7319444444444444,
-    "acierto_horas_baratas_base": 0.7430555555555556,
-    "mejora_mae_pct": -10.64875472466078
+    "mae_modelo": 162.37166312101456,
+    "mae_base": 148.62234222222224,
+    "mape_modelo": 32.32134759925638,
+    "mape_base": 25.47833944619569,
+    "acierto_horas_baratas_modelo": 0.7333333333333333,
+    "acierto_horas_baratas_base": 0.7486111111111111,
+    "mejora_mae_pct": -9.251180336153041
   },
   "perfiles": {
     "fabrica": {
       "usuario": "Cementos Argos · Planta Rioclaro (caso de referencia)",
-      "ahorro_real_backtest_pct": 13.3,
+      "ahorro_real_backtest_pct": 13.6,
       "reglas": "todas cumplen"
     },
     "flota": {
