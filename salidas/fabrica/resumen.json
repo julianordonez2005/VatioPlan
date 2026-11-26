@@ -5,14 +5,14 @@
   "plan_de_referencia": "Operación actual",
   "ventanas_planeadas": 3,
   "fechas": [
-    "2026-11-25 desde las 00:00",
     "2026-11-26 desde las 00:00",
-    "2026-11-27 desde las 00:00"
+    "2026-11-27 desde las 00:00",
+    "2026-11-28 desde las 00:00"
   ],
-  "costo_referencia_cop": 197795344,
-  "costo_vatioplan_cop": 152900558,
-  "ahorro_cop": 44894786,
-  "ahorro_pct": 22.7,
+  "costo_referencia_cop": 183595002,
+  "costo_vatioplan_cop": 149040196,
+  "ahorro_cop": 34554805,
+  "ahorro_pct": 18.8,
   "horario_recomendado_primera_ventana": {
     "Molino de crudo": "00:00–18:00",
     "Molino de cemento 1": "00:00–16:00",
@@ -88,5 +88,5 @@
       "Ahorro real en backtest (%)": 13.3
     }
   ],
-  "proveedor_ia": "Gemini"
+  "proveedor_ia": "Groq"
 }

@@ -5,14 +5,14 @@
   "plan_de_referencia": "Carga inmediata",
   "ventanas_planeadas": 3,
   "fechas": [
-    "2026-11-25 desde las 12:00",
     "2026-11-26 desde las 12:00",
-    "2026-11-27 desde las 12:00"
+    "2026-11-27 desde las 12:00",
+    "2026-11-28 desde las 12:00"
   ],
-  "costo_referencia_cop": 18793344,
-  "costo_vatioplan_cop": 12280708,
-  "ahorro_cop": 6512637,
-  "ahorro_pct": 34.7,
+  "costo_referencia_cop": 17887941,
+  "costo_vatioplan_cop": 12066814,
+  "ahorro_cop": 5821128,
+  "ahorro_pct": 32.5,
   "horario_recomendado_primera_ventana": {
     "Padrón · turno A": "00:00–04:00",
     "Padrón · turno B": "00:00–04:00",
@@ -87,5 +87,5 @@
       "Ahorro real en backtest (%)": 21.3
     }
   ],
-  "proveedor_ia": "Gemini"
+  "proveedor_ia": "Groq"
 }
